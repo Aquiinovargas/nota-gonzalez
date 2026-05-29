@@ -293,37 +293,37 @@ table input{
 
       <div class="form-group">
         <label>No. de Orden</label>
-        <input type="text" placeholder="Ej: 001">
+        <input type="text" id="fOrden" placeholder="Ej: 001">
       </div>
 
       <div class="form-group">
         <label>Fecha</label>
-        <input type="date">
+        <input type="date" id="fFecha">
       </div>
 
       <div class="form-group">
         <label>Unidad (Vehículo)</label>
-        <input type="text" placeholder="Marca / Modelo / Año">
+        <input type="text" id="fUnidad" placeholder="Marca / Modelo / Año">
       </div>
 
       <div class="form-group">
         <label>Dirección</label>
-        <input type="text" placeholder="Dirección del cliente">
+        <input type="text" id="fDireccion" placeholder="Dirección del cliente">
       </div>
 
       <div class="form-group">
         <label>Cliente</label>
-        <input type="text" placeholder="Nombre completo">
+        <input type="text" id="fCliente" placeholder="Nombre completo">
       </div>
 
       <div class="form-group">
         <label>Teléfono</label>
-        <input type="text" placeholder="Teléfono">
+        <input type="text" id="fTelefono" placeholder="Teléfono">
       </div>
 
       <div class="form-group">
         <label>R.F.C.</label>
-        <input type="text" placeholder="RFC (opcional)">
+        <input type="text" id="fRfc" placeholder="RFC (opcional)">
       </div>
 
     </div>
@@ -401,7 +401,7 @@ table input{
     </div>
 
     <p id="hintSwipe" style="margin-top:10px;text-align:center;font-size:11px;color:#aaa">
-      👈 Desliza una fila hacia la izquierda para eliminarla
+      👈 Desliza una fila a la izquierda para eliminarla &nbsp;|&nbsp; 💬 WhatsApp abre con el número del cliente automáticamente
     </p>
 
   </div><!-- /body-content -->
@@ -513,50 +513,127 @@ function capturarCanvas(){
   });
 }
 
-async function compartirWhatsApp(){
-  const canvas = await capturarCanvas();
-  canvas.toBlob(async blob=>{
-    const file = new File([blob], 'nota-remision.png', {type:'image/png'});
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      try{
-        await navigator.share({
-          title:'Nota de Remisión - Taller González',
-          text:'Te comparto la nota de remisión de tu vehículo.',
-          files:[file]
-        });
-      } catch(e){ abrirWhatsAppFallback(canvas); }
-    } else {
-      abrirWhatsAppFallback(canvas);
+function getDatosNota(){
+  const orden    = document.getElementById('fOrden')?.value     || '';
+  const fecha    = document.getElementById('fFecha')?.value     || '';
+  const unidad   = document.getElementById('fUnidad')?.value    || '';
+  const cliente  = document.getElementById('fCliente')?.value   || '';
+  const telefono = document.getElementById('fTelefono')?.value  || '';
+  const total    = document.getElementById('total').innerText    || '0.00';
+  const subtotal = document.getElementById('subtotal').innerText || '0.00';
+  const iva      = document.getElementById('chkIva').checked
+                   ? '  IVA (16%): $' + document.getElementById('iva').innerText : '';
+  const isr      = document.getElementById('chkIsr').checked
+                   ? '  Retención ISR (1.25%): $' + document.getElementById('isr').innerText : '';
+
+  // Filas de la tabla
+  let filas = '';
+  document.querySelectorAll('#bodyTable tr').forEach(row=>{
+    const cant  = row.querySelector('.cantidad').value || '0';
+    const desc  = row.querySelector('.descripcion').value;
+    const precio= row.querySelector('.precio').value   || '0';
+    const imp   = row.querySelector('.importe').innerText;
+    if(desc || parseFloat(precio) > 0){
+      filas += `  • ${cant}x ${desc} — $${precio} c/u = ${imp}\n`;
     }
-  }, 'image/png');
+  });
+
+  return { orden, fecha, unidad, cliente, telefono, total, subtotal, iva, isr, filas };
 }
 
-function abrirWhatsAppFallback(canvas){
-  // Descarga la imagen y abre WhatsApp
+async function compartirWhatsApp(){
+  const d = getDatosNota();
+
+  // 1. Primero descargar la imagen
+  const canvas = await capturarCanvas();
   const link = document.createElement('a');
   link.download = 'nota-remision.png';
   link.href = canvas.toDataURL('image/png');
   link.click();
-  setTimeout(()=>{
-    window.open('https://wa.me/?text=Nota%20de%20Remisi%C3%B3n%20Taller%20Gonz%C3%A1lez%20-%20756%20113%2069%2023', '_blank');
-  }, 800);
+
+  // 2. Construir mensaje con todos los datos
+  const msg =
+`🔧 *TALLER AUTOMOTRÍZ GONZÁLEZ*
+_Transmisiones Automáticas y Mecánica en General_
+
+📋 *NOTA DE REMISIÓN*
+━━━━━━━━━━━━━━━━━
+📌 No. Orden: ${d.orden}
+📅 Fecha: ${d.fecha}
+👤 Cliente: ${d.cliente}
+🚗 Vehículo: ${d.unidad}
+📞 Tel: ${d.telefono}
+━━━━━━━━━━━━━━━━━
+🛠️ *Servicios / Refacciones:*
+${d.filas}━━━━━━━━━━━━━━━━━
+💰 Subtotal: $${d.subtotal}
+${d.iva}${d.isr ? '\n' + d.isr : ''}
+✅ *TOTAL: $${d.total} MXN*
+━━━━━━━━━━━━━━━━━
+📎 _La imagen de su nota se ha descargado en su dispositivo._
+
+Gracias por su preferencia 🙏
+📍 Col. El Progreso, Calle Santo Domingo
+📞 756 113 69 23`;
+
+  // 3. Abrir WhatsApp con el número del cliente si existe, si no abrir selector
+  const numeroLimpio = d.telefono.replace(/\D/g,'');
+  const url = numeroLimpio
+    ? `https://wa.me/52${numeroLimpio}?text=${encodeURIComponent(msg)}`
+    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+  setTimeout(()=> window.open(url, '_blank'), 600);
 }
 
 async function compartirCorreo(){
+  const d = getDatosNota();
+
+  // 1. Descargar la imagen
   const canvas = await capturarCanvas();
   const link = document.createElement('a');
   link.download = 'nota-remision.png';
   link.href = canvas.toDataURL('image/png');
   link.click();
+
+  // 2. Construir correo completo
+  const asunto = encodeURIComponent(
+    `Nota de Remisión No. ${d.orden} — Taller González`
+  );
+
+  const cuerpo = encodeURIComponent(
+`Estimado/a ${d.cliente || 'cliente'},
+
+Le compartimos el resumen de su nota de remisión:
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+No. de Orden : ${d.orden}
+Fecha        : ${d.fecha}
+Vehículo     : ${d.unidad}
+Teléfono     : ${d.telefono}
+━━━━━━━━━━━━━━━━━━━━━━━━
+SERVICIOS / REFACCIONES:
+${d.filas}
+━━━━━━━━━━━━━━━━━━━━━━━━
+Subtotal     : $${d.subtotal} MXN
+${d.iva}${d.isr ? '\n' + d.isr : ''}
+TOTAL        : $${d.total} MXN
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+NOTA: La imagen de su nota de remisión se descargó en su dispositivo.
+Por favor adjúntela a este correo antes de enviarlo.
+
+Gracias por su preferencia.
+
+Taller Automotríz González
+Transmisiones Automáticas y Mecánica en General
+📞 756 113 69 23
+📍 Colonia El Progreso, Calle Santo Domingo`
+  );
+
+  // 3. Abrir app de correo — si tiene correo del cliente úsalo como destinatario
   setTimeout(()=>{
-    const cliente = document.querySelector('.grid input:nth-child(5)')?.value || 'Cliente';
-    const total   = document.getElementById('total').innerText;
-    const asunto  = encodeURIComponent('Nota de Remisión - Taller González');
-    const cuerpo  = encodeURIComponent(
-      `Estimado/a ${cliente},\n\nAdjunto encontrará su nota de remisión.\nTotal: $${total} MXN\n\nGracias por su preferencia.\n\nTaller Automotríz González\nTel: 756 113 69 23\nColonia El Progreso, Calle Santo Domingo`
-    );
     window.location.href = `mailto:?subject=${asunto}&body=${cuerpo}`;
-  }, 800);
+  }, 600);
 }
 
 eventos();
