@@ -336,7 +336,6 @@ table input{
           <th>DESCRIPCIÓN</th>
           <th style="width:110px">PRECIO</th>
           <th style="width:120px">IMPORTE (MXN)</th>
-          <th style="width:40px"></th>
         </tr>
       </thead>
       <tbody id="bodyTable">
@@ -345,12 +344,11 @@ table input{
           <td><input type="text" placeholder="Servicio o refacción..." class="descripcion"></td>
           <td><input type="number" value="0" class="precio"></td>
           <td class="importe">$ 0.00</td>
-          <td><button class="delete-btn" onclick="eliminarFila(this)">✕</button></td>
         </tr>
       </tbody>
     </table>
 
-    <button class="btn add" onclick="agregarFila()">+ Agregar fila</button>
+    <button id="btnAgregarFila" class="btn add" onclick="agregarFila()">+ Agregar fila</button>
 
     <!-- CHECKBOXES -->
     <div class="checks">
@@ -389,13 +387,21 @@ table input{
     </div>
 
     <!-- BOTONES -->
-    <div class="botones">
-      <button class="btn btn-download" onclick="generarNota()">🖨 Descargar Nota (PDF)</button>
+    <div class="botones" id="accionesBotones">
+      <button class="btn btn-download" onclick="generarNota()">🖨 Descargar Nota</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-whatsapp" onclick="compartirWhatsApp()" style="flex:1;background:#25D366;color:white">
+          <span style="font-size:18px">💬</span><br>Enviar por<br>WhatsApp
+        </button>
+        <button class="btn btn-email" onclick="compartirCorreo()" style="flex:1;background:#3b4d6b;color:white">
+          <span style="font-size:18px">✉️</span><br>Enviar por<br>Correo
+        </button>
+      </div>
       <button class="btn btn-clear" onclick="limpiarTodo()">🗑 Limpiar</button>
     </div>
 
-    <p style="margin-top:12px;text-align:center;font-size:12px;color:#777">
-      💡 El PDF se guarda en tu dispositivo. Envíalo por WhatsApp o correo a tus clientes.
+    <p id="hintSwipe" style="margin-top:10px;text-align:center;font-size:11px;color:#aaa">
+      👈 Desliza una fila hacia la izquierda para eliminarla
     </p>
 
   </div><!-- /body-content -->
@@ -416,15 +422,31 @@ function agregarFila(){
     <td><input type="text" placeholder="Servicio o refacción..." class="descripcion"></td>
     <td><input type="number" value="0" class="precio"></td>
     <td class="importe">$ 0.00</td>
-    <td><button class="delete-btn" onclick="eliminarFila(this)">✕</button></td>
   `;
   document.getElementById('bodyTable').appendChild(tr);
+  agregarSwipe(tr);
   eventos();
 }
 
-function eliminarFila(btn){
-  btn.parentElement.parentElement.remove();
-  calcular();
+function eliminarFila(row){
+  if(document.querySelectorAll('#bodyTable tr').length > 1){
+    row.remove();
+    calcular();
+  }
+}
+
+function agregarSwipe(tr){
+  let startX = 0;
+  tr.addEventListener('touchstart', e=>{ startX = e.touches[0].clientX; }, {passive:true});
+  tr.addEventListener('touchend', e=>{
+    const diff = startX - e.changedTouches[0].clientX;
+    if(diff > 80) eliminarFila(tr);
+  });
+  // Long press para desktop
+  let timer;
+  tr.addEventListener('mousedown', ()=>{ timer = setTimeout(()=>{ if(confirm('¿Eliminar esta fila?')) eliminarFila(tr); }, 600); });
+  tr.addEventListener('mouseup', ()=> clearTimeout(timer));
+  tr.addEventListener('mouseleave', ()=> clearTimeout(timer));
 }
 
 function eventos(){
@@ -467,15 +489,78 @@ function limpiarTodo(){
 }
 
 function generarNota(){
-  html2canvas(document.getElementById('nota')).then(canvas=>{
+  capturarCanvas().then(canvas=>{
     const link = document.createElement('a');
     link.download = 'nota-remision.png';
-    link.href = canvas.toDataURL();
+    link.href = canvas.toDataURL('image/png');
     link.click();
   });
 }
 
+function capturarCanvas(){
+  // Elementos que NO deben salir en la imagen
+  const ocultar = [
+    document.getElementById('accionesBotones'),
+    document.getElementById('btnAgregarFila'),
+    document.getElementById('hintSwipe'),
+    document.querySelector('.checks'),
+  ];
+  ocultar.forEach(el=>{ if(el) el.style.display='none'; });
+
+  return html2canvas(document.getElementById('nota'), {scale:2, useCORS:true}).then(canvas=>{
+    ocultar.forEach(el=>{ if(el) el.style.display=''; });
+    return canvas;
+  });
+}
+
+async function compartirWhatsApp(){
+  const canvas = await capturarCanvas();
+  canvas.toBlob(async blob=>{
+    const file = new File([blob], 'nota-remision.png', {type:'image/png'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{
+        await navigator.share({
+          title:'Nota de Remisión - Taller González',
+          text:'Te comparto la nota de remisión de tu vehículo.',
+          files:[file]
+        });
+      } catch(e){ abrirWhatsAppFallback(canvas); }
+    } else {
+      abrirWhatsAppFallback(canvas);
+    }
+  }, 'image/png');
+}
+
+function abrirWhatsAppFallback(canvas){
+  // Descarga la imagen y abre WhatsApp
+  const link = document.createElement('a');
+  link.download = 'nota-remision.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  setTimeout(()=>{
+    window.open('https://wa.me/?text=Nota%20de%20Remisi%C3%B3n%20Taller%20Gonz%C3%A1lez%20-%20756%20113%2069%2023', '_blank');
+  }, 800);
+}
+
+async function compartirCorreo(){
+  const canvas = await capturarCanvas();
+  const link = document.createElement('a');
+  link.download = 'nota-remision.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  setTimeout(()=>{
+    const cliente = document.querySelector('.grid input:nth-child(5)')?.value || 'Cliente';
+    const total   = document.getElementById('total').innerText;
+    const asunto  = encodeURIComponent('Nota de Remisión - Taller González');
+    const cuerpo  = encodeURIComponent(
+      `Estimado/a ${cliente},\n\nAdjunto encontrará su nota de remisión.\nTotal: $${total} MXN\n\nGracias por su preferencia.\n\nTaller Automotríz González\nTel: 756 113 69 23\nColonia El Progreso, Calle Santo Domingo`
+    );
+    window.location.href = `mailto:?subject=${asunto}&body=${cuerpo}`;
+  }, 800);
+}
+
 eventos();
+document.querySelectorAll('#bodyTable tr').forEach(tr => agregarSwipe(tr));
 
 /* PWA */
 if('serviceWorker' in navigator){
