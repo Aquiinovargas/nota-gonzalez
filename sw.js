@@ -1,10 +1,10 @@
 const CACHE_NAME = 'nota-gonzalez-v1';
+
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
+  './Logo.jpeg',
   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'
 ];
 
@@ -16,11 +16,20 @@ self.addEventListener('install', e =>
 
 self.addEventListener('activate', e =>
 {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))));
+  e.waitUntil(
+    caches.keys().then(ks =>
+      Promise.all(
+        ks.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+      )
+    )
+  );
+
   self.clients.claim();
 });
 
 self.addEventListener('fetch', e =>
 {
-  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+  e.respondWith(
+    caches.match(e.request).then(r => r || fetch(e.request))
+  );
 });
