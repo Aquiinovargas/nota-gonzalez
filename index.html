@@ -2,217 +2,283 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>Notas González</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- PWA -->
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#3b4d6b">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Notas González">
+<title>Nota de Remisión - Taller González</title>
 
-  <!-- Icono -->
-  <link rel="apple-touch-icon" href="./Logo.jpeg">
+<!-- PWA -->
+<link rel="manifest" href="./manifest.json">
 
-  <!-- Librería -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<meta name="theme-color" content="#3b4d6b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-  <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family:Arial, sans-serif;
-    }
+<link rel="apple-touch-icon" href="./Logo.jpeg">
 
-    body{
-      background:#f2f4f8;
-      padding:20px;
-      color:#222;
-    }
+<!-- Librería -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    .container{
-      max-width:700px;
-      margin:auto;
-      background:#fff;
-      padding:25px;
-      border-radius:15px;
-      box-shadow:0 5px 20px rgba(0,0,0,.1);
-    }
+<style>
 
-    .logo{
-      text-align:center;
-      margin-bottom:20px;
-    }
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
 
-    .logo img{
-      width:120px;
-      border-radius:12px;
-    }
+body{
+  font-family:Arial, sans-serif;
+  background:#f2f2f2;
+  padding:20px;
+}
 
-    h1{
-      text-align:center;
-      margin-bottom:25px;
-      color:#2c3a52;
-    }
+.container{
+  max-width:800px;
+  margin:auto;
+  background:#fff;
+  padding:20px;
+  border-radius:10px;
+  box-shadow:0 0 10px rgba(0,0,0,.1);
+}
 
-    .form-group{
-      margin-bottom:15px;
-    }
+.logo{
+  text-align:center;
+  margin-bottom:20px;
+}
 
-    label{
-      display:block;
-      margin-bottom:5px;
-      font-weight:bold;
-    }
+.logo img{
+  width:120px;
+  height:120px;
+  object-fit:cover;
+  border-radius:10px;
+}
 
-    input, textarea{
-      width:100%;
-      padding:12px;
-      border:1px solid #ccc;
-      border-radius:8px;
-      font-size:16px;
-    }
+h1{
+  text-align:center;
+  margin-bottom:20px;
+  color:#2c3a52;
+}
 
-    textarea{
-      resize:vertical;
-      min-height:100px;
-    }
+.form-group{
+  margin-bottom:15px;
+}
 
-    button{
-      width:100%;
-      padding:15px;
-      background:#3b4d6b;
-      color:#fff;
-      border:none;
-      border-radius:10px;
-      font-size:16px;
-      cursor:pointer;
-      margin-top:10px;
-    }
+label{
+  display:block;
+  margin-bottom:5px;
+  font-weight:bold;
+}
 
-    button:hover{
-      background:#2c3a52;
-    }
+input,
+textarea{
+  width:100%;
+  padding:12px;
+  border:1px solid #ccc;
+  border-radius:8px;
+  font-size:16px;
+}
 
-    #nota{
-      margin-top:30px;
-      padding:20px;
-      border:2px dashed #999;
-      border-radius:10px;
-      background:#fff;
-    }
+textarea{
+  resize:vertical;
+  min-height:100px;
+}
 
-    .hidden{
-      display:none;
-    }
-  </style>
+button{
+  width:100%;
+  padding:15px;
+  background:#3b4d6b;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:16px;
+  margin-top:10px;
+}
+
+button:hover{
+  background:#2c3a52;
+}
+
+#nota{
+  margin-top:30px;
+  border:2px solid #ccc;
+  padding:20px;
+  border-radius:10px;
+  background:white;
+}
+
+.hidden{
+  display:none;
+}
+
+.nota-header{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.nota-header img{
+  width:100px;
+  margin-bottom:10px;
+}
+
+.nota-line{
+  margin-bottom:10px;
+}
+
+.total{
+  font-size:22px;
+  margin-top:20px;
+  color:#2c3a52;
+}
+
+.footer{
+  margin-top:30px;
+  text-align:center;
+  font-size:14px;
+  color:#666;
+}
+
+</style>
+
 </head>
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <div class="logo">
+  <div class="logo">
+    <img src="./Logo.jpeg" alt="Logo">
+  </div>
+
+  <h1>Nota de Remisión</h1>
+
+  <div class="form-group">
+    <label>Cliente</label>
+    <input type="text" id="cliente">
+  </div>
+
+  <div class="form-group">
+    <label>Vehículo</label>
+    <input type="text" id="vehiculo">
+  </div>
+
+  <div class="form-group">
+    <label>Servicio</label>
+    <textarea id="servicio"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Total</label>
+    <input type="number" id="total">
+  </div>
+
+  <button onclick="generarNota()">
+    Generar Nota
+  </button>
+
+  <button onclick="descargarNota()">
+    Descargar Nota
+  </button>
+
+  <!-- NOTA -->
+
+  <div id="nota" class="hidden">
+
+    <div class="nota-header">
+
       <img src="./Logo.jpeg" alt="Logo">
-    </div>
 
-    <h1>Nota de Remisión</h1>
-
-    <div class="form-group">
-      <label>Cliente</label>
-      <input type="text" id="cliente" placeholder="Nombre del cliente">
-    </div>
-
-    <div class="form-group">
-      <label>Vehículo</label>
-      <input type="text" id="vehiculo" placeholder="Modelo del vehículo">
-    </div>
-
-    <div class="form-group">
-      <label>Servicio</label>
-      <textarea id="servicio" placeholder="Describe el servicio"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label>Total</label>
-      <input type="number" id="total" placeholder="$0.00">
-    </div>
-
-    <button onclick="generarNota()">Generar Nota</button>
-
-    <button onclick="descargarNota()">Descargar Imagen</button>
-
-    <div id="nota" class="hidden">
       <h2>Taller González</h2>
-      <hr><br>
 
-      <p><strong>Cliente:</strong> <span id="vCliente"></span></p>
-      <p><strong>Vehículo:</strong> <span id="vVehiculo"></span></p>
-      <p><strong>Servicio:</strong></p>
+      <p>
+        Sistema de Notas de Remisión
+      </p>
+
+    </div>
+
+    <div class="nota-line">
+      <strong>Cliente:</strong>
+      <span id="vCliente"></span>
+    </div>
+
+    <div class="nota-line">
+      <strong>Vehículo:</strong>
+      <span id="vVehiculo"></span>
+    </div>
+
+    <div class="nota-line">
+      <strong>Servicio:</strong>
       <p id="vServicio"></p>
+    </div>
 
-      <br>
+    <div class="total">
+      Total: $
+      <span id="vTotal"></span>
+    </div>
 
-      <h3>Total: $<span id="vTotal"></span></h3>
-
-      <br>
-      <p>Gracias por su preferencia.</p>
+    <div class="footer">
+      Gracias por su preferencia
     </div>
 
   </div>
 
-  <script>
-    function generarNota(){
+</div>
 
-      document.getElementById('vCliente').innerText =
-        document.getElementById('cliente').value;
+<script>
 
-      document.getElementById('vVehiculo').innerText =
-        document.getElementById('vehiculo').value;
+function generarNota(){
 
-      document.getElementById('vServicio').innerText =
-        document.getElementById('servicio').value;
+  document.getElementById('vCliente').innerText =
+    document.getElementById('cliente').value;
 
-      document.getElementById('vTotal').innerText =
-        document.getElementById('total').value;
+  document.getElementById('vVehiculo').innerText =
+    document.getElementById('vehiculo').value;
 
-      document.getElementById('nota').classList.remove('hidden');
-    }
+  document.getElementById('vServicio').innerText =
+    document.getElementById('servicio').value;
 
-    function descargarNota(){
+  document.getElementById('vTotal').innerText =
+    document.getElementById('total').value;
 
-      const nota = document.getElementById('nota');
+  document.getElementById('nota').classList.remove('hidden');
+}
 
-      html2canvas(nota).then(canvas => {
+function descargarNota(){
 
-        const link = document.createElement('a');
+  html2canvas(document.getElementById('nota'))
+    .then(canvas => {
 
-        link.download = 'nota-remision.png';
+      const link = document.createElement('a');
 
-        link.href = canvas.toDataURL();
+      link.download = 'nota-remision.png';
 
-        link.click();
-      });
-    }
+      link.href = canvas.toDataURL();
 
-    // Registrar Service Worker
-    if ('serviceWorker' in navigator) {
+      link.click();
 
-      window.addEventListener('load', () => {
+    });
+}
 
-        navigator.serviceWorker
-          .register('./sw.js')
-          .then(() => console.log('Service Worker registrado'))
-          .catch(err => console.log('Error:', err));
+/* PWA */
 
-      });
-    }
-  </script>
+if ('serviceWorker' in navigator) {
+
+  window.addEventListener('load', () => {
+
+    navigator.serviceWorker
+      .register('./sw.js')
+      .then(() => console.log('SW registrado'))
+      .catch(err => console.log(err));
+
+  });
+
+}
+
+</script>
 
 </body>
 </html>
 ```
+
