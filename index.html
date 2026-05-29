@@ -10,7 +10,7 @@
 <!-- PWA -->
 <link rel="manifest" href="./manifest.json">
 
-<meta name="theme-color" content="#3b4d6b">
+<meta name="theme-color" content="#1e2d4a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 
@@ -28,42 +28,75 @@
 }
 
 body{
-  background:#f2f2f2;
+  background:#e8edf3;
   padding:20px;
 }
 
 .container{
-  max-width:1200px;
+  max-width:750px;
   margin:auto;
   background:white;
-  padding:20px;
   border-radius:12px;
-  box-shadow:0 0 10px rgba(0,0,0,.1);
+  box-shadow:0 4px 20px rgba(0,0,0,.18);
+  overflow:hidden;
 }
 
-.logo{
-  text-align:center;
-  margin-bottom:15px;
+/* ── ENCABEZADO AZUL ── */
+.header{
+  background:#1e2d4a;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:18px 22px;
 }
 
-.logo img{
-  width:130px;
-  height:130px;
+.header img{
+  width:80px;
+  height:80px;
   object-fit:cover;
-  border-radius:12px;
+  border-radius:10px;
+  flex-shrink:0;
 }
 
-h1{
+.header-text h1{
+  color:#ffffff;
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:1px;
+  text-align:left;
+  margin:0;
+}
+
+.header-text p{
+  color:#c8d6e8;
+  font-size:12px;
+  margin:3px 0 0;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  line-height:1.4;
+}
+
+/* ── BANDA DORADA ── */
+.banda{
+  background:#b8922a;
   text-align:center;
-  color:#2c3a52;
-  margin-bottom:25px;
+  padding:8px;
+  color:white;
+  font-weight:bold;
+  font-size:14px;
+  letter-spacing:2px;
+}
+
+/* ── CUERPO ── */
+.body-content{
+  padding:20px;
 }
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:15px;
-  margin-bottom:20px;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:12px;
+  margin-bottom:16px;
 }
 
 .form-group{
@@ -72,60 +105,139 @@ h1{
 }
 
 label{
-  margin-bottom:5px;
+  margin-bottom:4px;
   font-weight:bold;
+  font-size:13px;
+  color:#2c3a52;
 }
 
 input{
-  padding:12px;
+  padding:10px;
   border:1px solid #ccc;
-  border-radius:8px;
+  border-radius:6px;
+  font-size:14px;
 }
 
+/* ── TABLA ── */
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:20px;
+  margin-top:10px;
+  font-size:13px;
 }
 
 table th{
-  background:#3b4d6b;
+  background:#1e2d4a;
   color:white;
-  padding:12px;
+  padding:10px 8px;
+  text-align:left;
+  font-size:12px;
+  letter-spacing:.5px;
 }
 
 table td{
-  border:1px solid #ccc;
-  padding:8px;
+  border:1px solid #ddd;
+  padding:6px 8px;
 }
 
 table input{
   width:100%;
   border:none;
   outline:none;
+  font-size:13px;
+  padding:4px;
+}
+
+/* ── TOTALES ── */
+.totales{
+  margin-top:20px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  overflow:hidden;
+}
+
+.totales-row{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 16px;
+  border-bottom:1px solid #eee;
+  font-size:14px;
+}
+
+.totales-row:last-child{
+  border-bottom:none;
+  background:#1e2d4a;
+  color:white;
+  font-size:17px;
+  font-weight:bold;
+  padding:13px 16px;
+}
+
+.totales-label{
+  color:inherit;
+  font-weight:600;
+}
+
+/* ── CHECKBOXES IVA/ISR ── */
+.checks{
+  display:flex;
+  gap:24px;
+  margin-top:14px;
+  align-items:center;
+  font-size:14px;
+  font-weight:bold;
+  color:#2c3a52;
+}
+
+.checks label{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.checks input[type=checkbox]{
+  width:18px;
+  height:18px;
+  cursor:pointer;
+}
+
+/* ── BOTONES ── */
+.botones{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:18px;
 }
 
 .btn{
-  padding:12px 18px;
+  padding:14px 18px;
   border:none;
   border-radius:8px;
   cursor:pointer;
-  margin-top:15px;
   font-size:15px;
+  font-weight:bold;
+  width:100%;
 }
 
 .add{
   background:#28a745;
   color:white;
+  width:auto;
+  padding:10px 16px;
+  font-size:14px;
+  border-radius:6px;
+  margin-top:12px;
 }
 
-.clear{
-  background:#dc3545;
+.btn-download{
+  background:#28a745;
   color:white;
 }
 
-.generate{
-  background:#3b4d6b;
+.btn-clear{
+  background:#dc3545;
   color:white;
 }
 
@@ -133,32 +245,26 @@ table input{
   background:#dc3545;
   color:white;
   border:none;
-  padding:8px 10px;
-  border-radius:6px;
+  padding:6px 10px;
+  border-radius:5px;
   cursor:pointer;
+  font-size:12px;
 }
 
-.totales{
-  margin-top:25px;
-  padding:20px;
-  background:#f8f8f8;
-  border-radius:10px;
-  text-align:right;
-  line-height:2;
-  font-size:18px;
-}
-
-.totales h2{
-  color:#2c3a52;
-  margin-top:10px;
-}
-
+/* ── PIE AZUL ── */
 .footer{
-  margin-top:35px;
+  background:#1e2d4a;
+  color:#c8d6e8;
   text-align:center;
-  color:#555;
+  padding:14px 20px;
+  font-size:13px;
   font-weight:bold;
-  font-size:15px;
+  letter-spacing:.5px;
+  margin-top:24px;
+}
+
+.footer span{
+  color:#f0c040;
 }
 
 </style>
@@ -168,284 +274,218 @@ table input{
 
 <div class="container" id="nota">
 
-  <div class="logo">
-    <img src="./Logo.jpeg" alt="Logo">
+  <!-- ENCABEZADO AZUL -->
+  <div class="header">
+    <img src="./Logo.jpeg" alt="Logo González">
+    <div class="header-text">
+      <h1>TALLER AUTOMOTRÍZ</h1>
+      <p>Transmisiones Automáticas<br>y Mecánica en General González</p>
+    </div>
   </div>
 
-  <h1>Nota de Remisión</h1>
+  <!-- BANDA DORADA -->
+  <div class="banda">NOTA DE REMISIÓN</div>
 
-  <div class="grid">
+  <!-- CUERPO -->
+  <div class="body-content">
 
-    <div class="form-group">
-      <label>No. de Orden</label>
-      <input type="text" placeholder="Ej: 001">
+    <div class="grid">
+
+      <div class="form-group">
+        <label>No. de Orden</label>
+        <input type="text" placeholder="Ej: 001">
+      </div>
+
+      <div class="form-group">
+        <label>Fecha</label>
+        <input type="date">
+      </div>
+
+      <div class="form-group">
+        <label>Unidad (Vehículo)</label>
+        <input type="text" placeholder="Marca / Modelo / Año">
+      </div>
+
+      <div class="form-group">
+        <label>Dirección</label>
+        <input type="text" placeholder="Dirección del cliente">
+      </div>
+
+      <div class="form-group">
+        <label>Cliente</label>
+        <input type="text" placeholder="Nombre completo">
+      </div>
+
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="text" placeholder="Teléfono">
+      </div>
+
+      <div class="form-group">
+        <label>R.F.C.</label>
+        <input type="text" placeholder="RFC (opcional)">
+      </div>
+
     </div>
 
-    <div class="form-group">
-      <label>Fecha</label>
-      <input type="date">
+    <!-- TABLA -->
+    <table>
+      <thead>
+        <tr>
+          <th style="width:80px">CANTIDAD</th>
+          <th>DESCRIPCIÓN</th>
+          <th style="width:110px">PRECIO</th>
+          <th style="width:120px">IMPORTE (MXN)</th>
+          <th style="width:40px"></th>
+        </tr>
+      </thead>
+      <tbody id="bodyTable">
+        <tr>
+          <td><input type="number" value="0" class="cantidad"></td>
+          <td><input type="text" placeholder="Servicio o refacción..." class="descripcion"></td>
+          <td><input type="number" value="0" class="precio"></td>
+          <td class="importe">$ 0.00</td>
+          <td><button class="delete-btn" onclick="eliminarFila(this)">✕</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button class="btn add" onclick="agregarFila()">+ Agregar fila</button>
+
+    <!-- CHECKBOXES -->
+    <div class="checks">
+      <label>
+        <input type="checkbox" id="chkIva" onchange="calcular()">
+        Aplicar IVA 16%
+      </label>
+      <label>
+        <input type="checkbox" id="chkIsr" onchange="calcular()">
+        Retener ISR 1.25%
+      </label>
     </div>
 
-    <div class="form-group">
-      <label>Unidad (Vehículo)</label>
-      <input type="text" placeholder="Marca / Modelo / Año">
+    <!-- TOTALES -->
+    <div class="totales" style="margin-top:18px">
+      <div class="totales-row">
+        <span class="totales-label">Precio del Producto:</span>
+        <span>$ <span id="precioProducto">0.00</span></span>
+      </div>
+      <div class="totales-row" id="rowIva" style="display:none">
+        <span class="totales-label">IVA (16%):</span>
+        <span>$ <span id="iva">0.00</span></span>
+      </div>
+      <div class="totales-row" id="rowIsr" style="display:none">
+        <span class="totales-label">Retención ISR (1.25%):</span>
+        <span>$ <span id="isr">0.00</span></span>
+      </div>
+      <div class="totales-row">
+        <span>Subtotal:</span>
+        <span>$ <span id="subtotal">0.00</span></span>
+      </div>
+      <div class="totales-row">
+        <span>TOTAL:</span>
+        <span>$ <span id="total">0.00</span></span>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label>Dirección</label>
-      <input type="text" placeholder="Dirección del cliente">
+    <!-- BOTONES -->
+    <div class="botones">
+      <button class="btn btn-download" onclick="generarNota()">🖨 Descargar Nota (PDF)</button>
+      <button class="btn btn-clear" onclick="limpiarTodo()">🗑 Limpiar</button>
     </div>
 
-    <div class="form-group">
-      <label>Cliente</label>
-      <input type="text" placeholder="Nombre completo">
-    </div>
-
-    <div class="form-group">
-      <label>Teléfono</label>
-      <input type="text" placeholder="Teléfono">
-    </div>
-
-    <div class="form-group">
-      <label>R.F.C.</label>
-      <input type="text" placeholder="RFC (opcional)">
-    </div>
-
-  </div>
-
-  <!-- TABLA -->
-
-  <table>
-
-    <thead>
-
-      <tr>
-        <th>CANT.</th>
-        <th>DESCRIPCIÓN</th>
-        <th>PRECIO</th>
-        <th>IMPORTE</th>
-        <th></th>
-      </tr>
-
-    </thead>
-
-    <tbody id="bodyTable">
-
-      <tr>
-
-        <td>
-          <input type="number" value="0" class="cantidad">
-        </td>
-
-        <td>
-          <input type="text" placeholder="Servicio o refacción..." class="descripcion">
-        </td>
-
-        <td>
-          <input type="number" value="0" class="precio">
-        </td>
-
-        <td class="importe">
-          $0.00
-        </td>
-
-        <td>
-          <button class="delete-btn" onclick="eliminarFila(this)">
-            ✕
-          </button>
-        </td>
-
-      </tr>
-
-    </tbody>
-
-  </table>
-
-  <button class="btn add" onclick="agregarFila()">
-    + Agregar fila
-  </button>
-
-  <!-- TOTALES -->
-
-  <div class="totales">
-
-    <p>
-      Precio Producto:
-      $ <span id="precioProducto">0.00</span>
+    <p style="margin-top:12px;text-align:center;font-size:12px;color:#777">
+      💡 El PDF se guarda en tu dispositivo. Envíalo por WhatsApp o correo a tus clientes.
     </p>
 
-    <p>
-      Subtotal:
-      $ <span id="subtotal">0.00</span>
-    </p>
+  </div><!-- /body-content -->
 
-    <p>
-      IVA (16%):
-      $ <span id="iva">0.00</span>
-    </p>
-
-    <p>
-      ISR (10%):
-      $ <span id="isr">0.00</span>
-    </p>
-
-    <h2>
-      TOTAL:
-      $ <span id="total">0.00</span>
-    </h2>
-
-  </div>
-
-  <!-- BOTONES -->
-
-  <button class="btn clear" onclick="limpiarTodo()">
-    🗑 Limpiar
-  </button>
-
-  <button class="btn generate" onclick="generarNota()">
-    📄 Generar Nota
-  </button>
-
+  <!-- PIE AZUL -->
   <div class="footer">
-    González · Transmisiones Automáticas y Mecánica en General
+    <span>CEL.: 756 113 69 23</span> &nbsp;·&nbsp; DIRECCIÓN: Colonia El Progreso, Calle Santo Domingo
   </div>
 
-</div>
+</div><!-- /container -->
 
 <script>
 
 function agregarFila(){
-
   const tr = document.createElement('tr');
-
   tr.innerHTML = `
-    <td>
-      <input type="number" value="0" class="cantidad">
-    </td>
-
-    <td>
-      <input type="text" placeholder="Servicio o refacción..." class="descripcion">
-    </td>
-
-    <td>
-      <input type="number" value="0" class="precio">
-    </td>
-
-    <td class="importe">
-      $0.00
-    </td>
-
-    <td>
-      <button class="delete-btn" onclick="eliminarFila(this)">
-        ✕
-      </button>
-    </td>
+    <td><input type="number" value="0" class="cantidad"></td>
+    <td><input type="text" placeholder="Servicio o refacción..." class="descripcion"></td>
+    <td><input type="number" value="0" class="precio"></td>
+    <td class="importe">$ 0.00</td>
+    <td><button class="delete-btn" onclick="eliminarFila(this)">✕</button></td>
   `;
-
   document.getElementById('bodyTable').appendChild(tr);
-
   eventos();
 }
 
 function eliminarFila(btn){
-
   btn.parentElement.parentElement.remove();
-
   calcular();
 }
 
 function eventos(){
-
   document.querySelectorAll('.cantidad,.precio').forEach(input=>{
-
     input.oninput = calcular;
-
   });
-
 }
 
 function calcular(){
-
-  let subtotal = 0;
+  let base = 0;
 
   document.querySelectorAll('#bodyTable tr').forEach(row=>{
-
-    const cantidad =
-      parseFloat(row.querySelector('.cantidad').value) || 0;
-
-    const precio =
-      parseFloat(row.querySelector('.precio').value) || 0;
-
-    const importe = cantidad * precio;
-
-    row.querySelector('.importe').innerText =
-      '$' + importe.toFixed(2);
-
-    subtotal += importe;
-
+    const cantidad = parseFloat(row.querySelector('.cantidad').value) || 0;
+    const precio   = parseFloat(row.querySelector('.precio').value)   || 0;
+    const importe  = cantidad * precio;
+    row.querySelector('.importe').innerText = '$ ' + importe.toFixed(2);
+    base += importe;
   });
 
-  const iva = subtotal * 0.16;
+  const aplicaIva = document.getElementById('chkIva').checked;
+  const aplicaIsr = document.getElementById('chkIsr').checked;
 
-  const isr = subtotal * 0.10;
+  const iva = aplicaIva ? base * 0.16   : 0;
+  const isr = aplicaIsr ? base * 0.0125 : 0;
+  const subtotal = base;
+  const total    = base + iva - isr;
 
-  const total = subtotal + iva - isr;
+  document.getElementById('precioProducto').innerText = base.toFixed(2);
+  document.getElementById('subtotal').innerText       = subtotal.toFixed(2);
+  document.getElementById('iva').innerText            = iva.toFixed(2);
+  document.getElementById('isr').innerText            = isr.toFixed(2);
+  document.getElementById('total').innerText          = total.toFixed(2);
 
-  document.getElementById('precioProducto').innerText =
-    subtotal.toFixed(2);
-
-  document.getElementById('subtotal').innerText =
-    subtotal.toFixed(2);
-
-  document.getElementById('iva').innerText =
-    iva.toFixed(2);
-
-  document.getElementById('isr').innerText =
-    isr.toFixed(2);
-
-  document.getElementById('total').innerText =
-    total.toFixed(2);
+  document.getElementById('rowIva').style.display = aplicaIva ? '' : 'none';
+  document.getElementById('rowIsr').style.display = aplicaIsr ? '' : 'none';
 }
 
 function limpiarTodo(){
-
   location.reload();
 }
 
 function generarNota(){
-
-  html2canvas(document.getElementById('nota'))
-    .then(canvas=>{
-
-      const link = document.createElement('a');
-
-      link.download = 'nota-remision.png';
-
-      link.href = canvas.toDataURL();
-
-      link.click();
-
-    });
+  html2canvas(document.getElementById('nota')).then(canvas=>{
+    const link = document.createElement('a');
+    link.download = 'nota-remision.png';
+    link.href = canvas.toDataURL();
+    link.click();
+  });
 }
 
 eventos();
 
 /* PWA */
-
-if ('serviceWorker' in navigator){
-
+if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
-
     navigator.serviceWorker.register('./sw.js')
       .then(()=>console.log('SW registrado'))
       .catch(err=>console.log(err));
-
   });
-
 }
 
 </script>
-
 </body>
 </html>
-
