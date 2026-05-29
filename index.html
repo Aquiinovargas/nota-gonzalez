@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Nota de Remisión - Taller González</title>
+<title>Notas González</title>
 
 <!-- PWA -->
 <link rel="manifest" href="./manifest.json">
@@ -13,11 +14,9 @@
 <meta name="theme-color" content="#3b4d6b">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 
 <link rel="apple-touch-icon" href="./Logo.jpeg">
 
-<!-- Librería -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
@@ -26,118 +25,120 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
+  font-family:Arial,sans-serif;
 }
 
 body{
-  font-family:Arial, sans-serif;
   background:#f2f2f2;
   padding:20px;
 }
 
 .container{
-  max-width:800px;
+  max-width:1100px;
   margin:auto;
-  background:#fff;
+  background:white;
   padding:20px;
-  border-radius:10px;
+  border-radius:12px;
   box-shadow:0 0 10px rgba(0,0,0,.1);
 }
 
 .logo{
   text-align:center;
-  margin-bottom:20px;
+  margin-bottom:15px;
 }
 
 .logo img{
   width:120px;
-  height:120px;
-  object-fit:cover;
   border-radius:10px;
 }
 
 h1{
   text-align:center;
-  margin-bottom:20px;
+  margin-bottom:25px;
   color:#2c3a52;
 }
 
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:15px;
+  margin-bottom:20px;
+}
+
 .form-group{
-  margin-bottom:15px;
+  display:flex;
+  flex-direction:column;
 }
 
 label{
-  display:block;
   margin-bottom:5px;
   font-weight:bold;
 }
 
-input,
-textarea{
-  width:100%;
-  padding:12px;
+input{
+  padding:10px;
   border:1px solid #ccc;
   border-radius:8px;
-  font-size:16px;
 }
 
-textarea{
-  resize:vertical;
-  min-height:100px;
-}
-
-button{
+table{
   width:100%;
-  padding:15px;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+
+table th{
   background:#3b4d6b;
   color:white;
+  padding:10px;
+}
+
+table td{
+  border:1px solid #ccc;
+  padding:8px;
+}
+
+table input{
+  width:100%;
+  border:none;
+  outline:none;
+}
+
+.btn{
+  padding:12px 18px;
   border:none;
   border-radius:8px;
   cursor:pointer;
-  font-size:16px;
-  margin-top:10px;
+  margin-top:15px;
+  font-size:15px;
 }
 
-button:hover{
-  background:#2c3a52;
+.add{
+  background:#28a745;
+  color:white;
 }
 
-#nota{
-  margin-top:30px;
-  border:2px solid #ccc;
-  padding:20px;
-  border-radius:10px;
-  background:white;
+.clear{
+  background:#dc3545;
+  color:white;
 }
 
-.hidden{
-  display:none;
+.generate{
+  background:#3b4d6b;
+  color:white;
 }
 
-.nota-header{
-  text-align:center;
-  margin-bottom:20px;
-}
-
-.nota-header img{
-  width:100px;
-  margin-bottom:10px;
-}
-
-.nota-line{
-  margin-bottom:10px;
-}
-
-.total{
-  font-size:22px;
+.totales{
   margin-top:20px;
-  color:#2c3a52;
+  text-align:right;
+  font-size:18px;
 }
 
 .footer{
   margin-top:30px;
   text-align:center;
-  font-size:14px;
-  color:#666;
+  color:#555;
+  font-weight:bold;
 }
 
 </style>
@@ -147,129 +148,211 @@ button:hover{
 
 <div class="container">
 
-  <div class="logo">
-    <img src="./Logo.jpeg" alt="Logo">
-  </div>
+<div class="logo">
+<img src="./Logo.jpeg">
+</div>
 
-  <h1>Nota de Remisión</h1>
+<h1>Nota de Remisión</h1>
 
-  <div class="form-group">
-    <label>Cliente</label>
-    <input type="text" id="cliente">
-  </div>
+<div class="grid">
 
-  <div class="form-group">
-    <label>Vehículo</label>
-    <input type="text" id="vehiculo">
-  </div>
+<div class="form-group">
+<label>No. de Orden</label>
+<input type="text" placeholder="Ej: 001">
+</div>
 
-  <div class="form-group">
-    <label>Servicio</label>
-    <textarea id="servicio"></textarea>
-  </div>
+<div class="form-group">
+<label>Fecha</label>
+<input type="date">
+</div>
 
-  <div class="form-group">
-    <label>Total</label>
-    <input type="number" id="total">
-  </div>
+<div class="form-group">
+<label>Unidad (Vehículo)</label>
+<input type="text" placeholder="Marca / Modelo / Año">
+</div>
 
-  <button onclick="generarNota()">
-    Generar Nota
-  </button>
+<div class="form-group">
+<label>Dirección</label>
+<input type="text" placeholder="Dirección del cliente">
+</div>
 
-  <button onclick="descargarNota()">
-    Descargar Nota
-  </button>
+<div class="form-group">
+<label>Cliente</label>
+<input type="text" placeholder="Nombre completo">
+</div>
 
-  <!-- NOTA -->
+<div class="form-group">
+<label>Teléfono</label>
+<input type="text" placeholder="Teléfono">
+</div>
 
-  <div id="nota" class="hidden">
+<div class="form-group">
+<label>R.F.C.</label>
+<input type="text" placeholder="RFC (opcional)">
+</div>
 
-    <div class="nota-header">
+</div>
 
-      <img src="./Logo.jpeg" alt="Logo">
+<table id="tabla">
 
-      <h2>Taller González</h2>
+<thead>
+<tr>
+<th>CANT.</th>
+<th>DESCRIPCIÓN</th>
+<th>PRECIO</th>
+<th>IMPORTE</th>
+<th></th>
+</tr>
+</thead>
 
-      <p>
-        Sistema de Notas de Remisión
-      </p>
+<tbody id="bodyTable">
 
-    </div>
+<tr>
+<td><input type="number" value="0" class="cantidad"></td>
+<td><input type="text" placeholder="Servicio o refacción..." class="descripcion"></td>
+<td><input type="number" value="0" class="precio"></td>
+<td class="importe">$0.00</td>
+<td><button onclick="eliminarFila(this)">✕</button></td>
+</tr>
 
-    <div class="nota-line">
-      <strong>Cliente:</strong>
-      <span id="vCliente"></span>
-    </div>
+</tbody>
 
-    <div class="nota-line">
-      <strong>Vehículo:</strong>
-      <span id="vVehiculo"></span>
-    </div>
+</table>
 
-    <div class="nota-line">
-      <strong>Servicio:</strong>
-      <p id="vServicio"></p>
-    </div>
+<button class="btn add" onclick="agregarFila()">
++ Agregar fila
+</button>
 
-    <div class="total">
-      Total: $
-      <span id="vTotal"></span>
-    </div>
+<div class="totales">
 
-    <div class="footer">
-      Gracias por su preferencia
-    </div>
+<p>
+Precio Producto:
+<span id="precioProducto">0.00</span>
+</p>
 
-  </div>
+<p>
+Subtotal:
+$ <span id="subtotal">0.00</span>
+</p>
+
+<h2>
+TOTAL:
+$ <span id="total">0.00</span>
+</h2>
+
+</div>
+
+<button class="btn clear" onclick="limpiarTodo()">
+🗑 Limpiar
+</button>
+
+<button class="btn generate" onclick="generarNota()">
+📄 Generar Nota
+</button>
+
+<div class="footer">
+González · Transmisiones Automáticas y Mecánica en General
+</div>
 
 </div>
 
 <script>
 
+function agregarFila(){
+
+  const tr = document.createElement('tr');
+
+  tr.innerHTML = `
+    <td><input type="number" value="0" class="cantidad"></td>
+    <td><input type="text" placeholder="Servicio o refacción..." class="descripcion"></td>
+    <td><input type="number" value="0" class="precio"></td>
+    <td class="importe">$0.00</td>
+    <td><button onclick="eliminarFila(this)">✕</button></td>
+  `;
+
+  document.getElementById('bodyTable').appendChild(tr);
+
+  eventos();
+}
+
+function eliminarFila(btn){
+
+  btn.parentElement.parentElement.remove();
+
+  calcular();
+}
+
+function eventos(){
+
+  document.querySelectorAll('.cantidad,.precio').forEach(input=>{
+
+    input.oninput = calcular;
+
+  });
+
+}
+
+function calcular(){
+
+  let total = 0;
+
+  document.querySelectorAll('#bodyTable tr').forEach(row=>{
+
+    const cantidad =
+      parseFloat(row.querySelector('.cantidad').value) || 0;
+
+    const precio =
+      parseFloat(row.querySelector('.precio').value) || 0;
+
+    const importe = cantidad * precio;
+
+    row.querySelector('.importe').innerText =
+      '$' + importe.toFixed(2);
+
+    total += importe;
+
+  });
+
+  document.getElementById('precioProducto').innerText =
+    total.toFixed(2);
+
+  document.getElementById('subtotal').innerText =
+    total.toFixed(2);
+
+  document.getElementById('total').innerText =
+    total.toFixed(2);
+}
+
+function limpiarTodo(){
+
+  location.reload();
+}
+
 function generarNota(){
 
-  document.getElementById('vCliente').innerText =
-    document.getElementById('cliente').value;
+  html2canvas(document.body).then(canvas=>{
 
-  document.getElementById('vVehiculo').innerText =
-    document.getElementById('vehiculo').value;
+    const link = document.createElement('a');
 
-  document.getElementById('vServicio').innerText =
-    document.getElementById('servicio').value;
+    link.download = 'nota-remision.png';
 
-  document.getElementById('vTotal').innerText =
-    document.getElementById('total').value;
+    link.href = canvas.toDataURL();
 
-  document.getElementById('nota').classList.remove('hidden');
+    link.click();
+
+  });
+
 }
 
-function descargarNota(){
-
-  html2canvas(document.getElementById('nota'))
-    .then(canvas => {
-
-      const link = document.createElement('a');
-
-      link.download = 'nota-remision.png';
-
-      link.href = canvas.toDataURL();
-
-      link.click();
-
-    });
-}
+eventos();
 
 /* PWA */
 
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator){
 
-  window.addEventListener('load', () => {
+  window.addEventListener('load',()=>{
 
-    navigator.serviceWorker
-      .register('./sw.js')
-      .then(() => console.log('SW registrado'))
-      .catch(err => console.log(err));
+    navigator.serviceWorker.register('./sw.js');
 
   });
 
@@ -279,5 +362,3 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
-```
-
