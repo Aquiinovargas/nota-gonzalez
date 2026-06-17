@@ -17,6 +17,7 @@
 <link rel="apple-touch-icon" href="./Logo.jpeg">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 
@@ -267,6 +268,35 @@ table input{
   color:#f0c040;
 }
 
+/* ── MODO IMPRESIÓN (para captura limpia) ── */
+/* Cuando el body tiene esta clase, los inputs de texto/numero/fecha
+   se ven como texto plano en lugar de cajas de formulario. */
+body.modo-captura input[type="text"],
+body.modo-captura input[type="number"],
+body.modo-captura input[type="date"]{
+  border:none;
+  background:transparent;
+  padding:2px 0;
+  color:#1a1a1a;
+  -webkit-appearance:none;
+  appearance:none;
+}
+
+body.modo-captura .form-group input{
+  font-size:15px;
+  font-weight:600;
+}
+
+body.modo-captura label{
+  font-size:12px;
+  color:#6b7a8f;
+  margin-bottom:2px;
+}
+
+body.modo-captura table td input{
+  padding:0;
+}
+
 </style>
 
 </head>
@@ -388,7 +418,7 @@ table input{
 
     <!-- BOTONES -->
     <div class="botones" id="accionesBotones">
-      <button class="btn btn-download" onclick="generarNota()">🖨 Descargar Nota</button>
+      <button class="btn btn-download" onclick="generarNota()">📄 Descargar PDF</button>
       <div style="display:flex;gap:10px">
         <button class="btn btn-whatsapp" onclick="compartirWhatsApp()" style="flex:1;background:#25D366;color:white">
           <span style="font-size:18px">💬</span><br>Enviar por<br>WhatsApp
@@ -487,7 +517,8 @@ function limpiarTodo(){
   location.reload();
 }
 
-// ── CAPTURA LIMPIA: oculta botones Y filas vacías ──
+// ── CAPTURA LIMPIA: oculta botones, filas vacías,
+//    y convierte los inputs en texto plano para que no se vean como formulario ──
 function capturarCanvas(){
   const ocultar = [
     document.getElementById('accionesBotones'),
@@ -510,20 +541,69 @@ function capturarCanvas(){
 
   ocultar.forEach(el => { if(el) el.style.display = 'none'; });
 
+  // Activa el modo "vista de impresión": quita bordes/fondos de los inputs
+  document.body.classList.add('modo-captura');
+
+  // Si un campo está vacío, durante la captura mostramos un texto
+  // temporal limpio (por ejemplo "Dirección del cliente" desaparece,
+  // queda en blanco en vez de mostrar el placeholder gris).
+  const camposOpcionales = ['fDireccion','fTelefono','fRfc'];
+  const restaurarValor = [];
+  camposOpcionales.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el && !el.value.trim()){
+      restaurarValor.push({el, original:el.value});
+    }
+  });
+
   return html2canvas(document.getElementById('nota'), {scale:2, useCORS:true}).then(canvas => {
     // Restaurar todo
     ocultar.forEach(el => { if(el) el.style.display = ''; });
     filasVacias.forEach(row => { row.style.display = ''; });
+    document.body.classList.remove('modo-captura');
     return canvas;
   });
 }
 
+function descargarComoPDF(canvas, nombreArchivo){
+  const { jsPDF } = window.jspdf;
+
+  const imgData = canvas.toDataURL('image/png');
+
+  // Tamaño de la imagen en mm, manteniendo la proporción, ajustado a una
+  // hoja carta (215.9 x 279.4 mm) con márgenes de 10mm.
+  const pageWidth  = 215.9;
+  const pageHeight = 279.4;
+  const margin     = 10;
+  const maxWidth   = pageWidth - margin * 2;
+  const maxHeight  = pageHeight - margin * 2;
+
+  const imgRatio = canvas.width / canvas.height;
+  let pdfWidth  = maxWidth;
+  let pdfHeight = pdfWidth / imgRatio;
+
+  if (pdfHeight > maxHeight) {
+    pdfHeight = maxHeight;
+    pdfWidth  = pdfHeight * imgRatio;
+  }
+
+  const x = (pageWidth  - pdfWidth)  / 2;
+  const y = margin;
+
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'letter'
+  });
+
+  pdf.addImage(imgData, 'PNG', x, y, pdfWidth, pdfHeight);
+  pdf.save(nombreArchivo);
+}
+
 function generarNota(){
   capturarCanvas().then(canvas=>{
-    const link = document.createElement('a');
-    link.download = 'nota-remision.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    const orden = document.getElementById('fOrden').value || 'sn';
+    descargarComoPDF(canvas, `nota-remision-${orden}.pdf`);
   });
 }
 
@@ -558,10 +638,7 @@ async function compartirWhatsApp(){
   const d = getDatosNota();
 
   const canvas = await capturarCanvas();
-  const link = document.createElement('a');
-  link.download = 'nota-remision.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+  descargarComoPDF(canvas, `nota-remision-${d.orden || 'sn'}.pdf`);
 
   const msg =
 `🔧 *TALLER AUTOMOTRÍZ GONZÁLEZ*
@@ -581,7 +658,7 @@ ${d.filas}━━━━━━━━━━━━━━━━━
 ${d.iva}${d.isr ? '\n' + d.isr : ''}
 ✅ *TOTAL: $${d.total} MXN*
 ━━━━━━━━━━━━━━━━━
-📎 _La imagen de su nota se ha descargado en su dispositivo._
+📎 _El PDF de su nota se ha descargado en su dispositivo._
 
 Gracias por su preferencia 🙏
 📍 Col. El Progreso, Calle Santo Domingo
@@ -599,10 +676,7 @@ async function compartirCorreo(){
   const d = getDatosNota();
 
   const canvas = await capturarCanvas();
-  const link = document.createElement('a');
-  link.download = 'nota-remision.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+  descargarComoPDF(canvas, `nota-remision-${d.orden || 'sn'}.pdf`);
 
   const asunto = encodeURIComponent(
     `Nota de Remisión No. ${d.orden} — Taller González`
@@ -627,8 +701,8 @@ ${d.iva}${d.isr ? '\n' + d.isr : ''}
 TOTAL        : $${d.total} MXN
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
-NOTA: La imagen de su nota de remisión se descargó en su dispositivo.
-Por favor adjúntela a este correo antes de enviarlo.
+NOTA: El PDF de su nota de remisión se descargó en su dispositivo.
+Por favor adjúntelo a este correo antes de enviarlo.
 
 Gracias por su preferencia.
 
