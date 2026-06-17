@@ -269,32 +269,69 @@ table input{
 }
 
 /* ── MODO IMPRESIÓN (para captura limpia) ── */
-/* Cuando el body tiene esta clase, los inputs de texto/numero/fecha
-   se ven como texto plano en lugar de cajas de formulario. */
-body.modo-captura input[type="text"],
-body.modo-captura input[type="number"],
-body.modo-captura input[type="date"]{
-  border:none;
-  background:transparent;
-  padding:2px 0;
-  color:#1a1a1a;
-  -webkit-appearance:none;
-  appearance:none;
+/* Cuando el body tiene esta clase, los datos del cliente se ven como
+   "Etiqueta: dato_subrayado" en línea, estilo nota de remisión clásica.
+   La tabla de servicios NO se toca. */
+
+/* El grid pasa de tarjetas a un bloque tipo formulario impreso */
+body.modo-captura .grid{
+  display:block;
+  border:1px solid #1e2d4a;
+  border-radius:6px;
+  padding:14px 18px;
+  background:#fafbfc;
 }
 
-body.modo-captura .form-group input{
-  font-size:15px;
-  font-weight:600;
+body.modo-captura .form-group{
+  flex-direction:row;
+  align-items:baseline;
+  margin-bottom:10px;
+}
+
+body.modo-captura .form-group:last-child{
+  margin-bottom:0;
 }
 
 body.modo-captura label{
-  font-size:12px;
-  color:#6b7a8f;
-  margin-bottom:2px;
+  font-size:13px;
+  font-weight:bold;
+  color:#1e2d4a;
+  margin-bottom:0;
+  white-space:nowrap;
+  margin-right:8px;
 }
 
+body.modo-captura label::after{
+  content:":";
+}
+
+/* Inputs de los datos del cliente: línea subrayada en vez de caja */
+body.modo-captura .form-group input[type="text"],
+body.modo-captura .form-group input[type="date"]{
+  flex:1;
+  border:none;
+  border-bottom:1px solid #1e2d4a;
+  background:transparent;
+  border-radius:0;
+  padding:0 4px 2px;
+  font-size:14px;
+  font-weight:600;
+  color:#1a1a1a;
+  -webkit-appearance:none;
+  appearance:none;
+  min-width:60px;
+}
+
+/* La tabla de servicios/refacciones queda intacta */
 body.modo-captura table td input{
-  padding:0;
+  border:none;
+  background:transparent;
+  padding:4px;
+}
+
+/* Ocultar el ícono nativo del selector de fecha solo durante la captura */
+body.modo-captura input[type="date"]::-webkit-calendar-picker-indicator{
+  display:none;
 }
 
 </style>
@@ -544,22 +581,43 @@ function capturarCanvas(){
   // Activa el modo "vista de impresión": quita bordes/fondos de los inputs
   document.body.classList.add('modo-captura');
 
-  // Si un campo está vacío, durante la captura mostramos un texto
-  // temporal limpio (por ejemplo "Dirección del cliente" desaparece,
-  // queda en blanco en vez de mostrar el placeholder gris).
-  const camposOpcionales = ['fDireccion','fTelefono','fRfc'];
-  const restaurarValor = [];
-  camposOpcionales.forEach(id=>{
-    const el = document.getElementById(id);
-    if(el && !el.value.trim()){
-      restaurarValor.push({el, original:el.value});
+  // Si un campo de texto está vacío, quitamos el placeholder gris para
+  // que en el documento final no aparezca texto de ejemplo (ej. "RFC (opcional)").
+  const camposTexto = document.querySelectorAll('.form-group input[type="text"]');
+  const restaurarPlaceholder = [];
+  camposTexto.forEach(el=>{
+    if(!el.value.trim() && el.placeholder){
+      restaurarPlaceholder.push({el, placeholder: el.placeholder});
+      el.placeholder = '';
     }
   });
+
+  // Formatea la fecha como DD/MM/AAAA en vez del formato nativo del input
+  const fFecha = document.getElementById('fFecha');
+  let fechaTemporal = null;
+  if(fFecha && fFecha.value){
+    const [anio, mes, dia] = fFecha.value.split('-');
+    fechaTemporal = document.createElement('span');
+    fechaTemporal.textContent = `${dia}/${mes}/${anio}`;
+    fechaTemporal.style.flex = '1';
+    fechaTemporal.style.borderBottom = '1px solid #1e2d4a';
+    fechaTemporal.style.padding = '0 4px 2px';
+    fechaTemporal.style.fontSize = '14px';
+    fechaTemporal.style.fontWeight = '600';
+    fechaTemporal.style.color = '#1a1a1a';
+    fFecha.style.display = 'none';
+    fFecha.insertAdjacentElement('afterend', fechaTemporal);
+  }
 
   return html2canvas(document.getElementById('nota'), {scale:2, useCORS:true}).then(canvas => {
     // Restaurar todo
     ocultar.forEach(el => { if(el) el.style.display = ''; });
     filasVacias.forEach(row => { row.style.display = ''; });
+    restaurarPlaceholder.forEach(({el, placeholder}) => { el.placeholder = placeholder; });
+    if(fechaTemporal){
+      fechaTemporal.remove();
+      fFecha.style.display = '';
+    }
     document.body.classList.remove('modo-captura');
     return canvas;
   });
