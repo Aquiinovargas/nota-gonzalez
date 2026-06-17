@@ -442,7 +442,6 @@ function agregarSwipe(tr){
     const diff = startX - e.changedTouches[0].clientX;
     if(diff > 80) eliminarFila(tr);
   });
-  // Long press para desktop
   let timer;
   tr.addEventListener('mousedown', ()=>{ timer = setTimeout(()=>{ if(confirm('¿Eliminar esta fila?')) eliminarFila(tr); }, 600); });
   tr.addEventListener('mouseup', ()=> clearTimeout(timer));
@@ -469,8 +468,8 @@ function calcular(){
   const aplicaIva = document.getElementById('chkIva').checked;
   const aplicaIsr = document.getElementById('chkIsr').checked;
 
-  const iva = aplicaIva ? base * 0.16   : 0;
-  const isr = aplicaIsr ? base * 0.0125 : 0;
+  const iva      = aplicaIva ? base * 0.16   : 0;
+  const isr      = aplicaIsr ? base * 0.0125 : 0;
   const subtotal = base;
   const total    = base + iva - isr;
 
@@ -488,28 +487,43 @@ function limpiarTodo(){
   location.reload();
 }
 
-function generarNota(){
-  capturarCanvas().then(canvas=>{
-    const link = document.createElement('a');
-    link.download = 'nota-remision.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  });
-}
-
+// ── CAPTURA LIMPIA: oculta botones Y filas vacías ──
 function capturarCanvas(){
-  // Elementos que NO deben salir en la imagen
   const ocultar = [
     document.getElementById('accionesBotones'),
     document.getElementById('btnAgregarFila'),
     document.getElementById('hintSwipe'),
     document.querySelector('.checks'),
   ];
-  ocultar.forEach(el=>{ if(el) el.style.display='none'; });
 
-  return html2canvas(document.getElementById('nota'), {scale:2, useCORS:true}).then(canvas=>{
-    ocultar.forEach(el=>{ if(el) el.style.display=''; });
+  // Detectar y ocultar filas sin datos
+  const filasVacias = [];
+  document.querySelectorAll('#bodyTable tr').forEach(row => {
+    const desc   = row.querySelector('.descripcion').value.trim();
+    const cant   = parseFloat(row.querySelector('.cantidad').value) || 0;
+    const precio = parseFloat(row.querySelector('.precio').value)   || 0;
+    if (!desc && cant === 0 && precio === 0) {
+      row.style.display = 'none';
+      filasVacias.push(row);
+    }
+  });
+
+  ocultar.forEach(el => { if(el) el.style.display = 'none'; });
+
+  return html2canvas(document.getElementById('nota'), {scale:2, useCORS:true}).then(canvas => {
+    // Restaurar todo
+    ocultar.forEach(el => { if(el) el.style.display = ''; });
+    filasVacias.forEach(row => { row.style.display = ''; });
     return canvas;
+  });
+}
+
+function generarNota(){
+  capturarCanvas().then(canvas=>{
+    const link = document.createElement('a');
+    link.download = 'nota-remision.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
   });
 }
 
@@ -526,13 +540,12 @@ function getDatosNota(){
   const isr      = document.getElementById('chkIsr').checked
                    ? '  Retención ISR (1.25%): $' + document.getElementById('isr').innerText : '';
 
-  // Filas de la tabla
   let filas = '';
   document.querySelectorAll('#bodyTable tr').forEach(row=>{
-    const cant  = row.querySelector('.cantidad').value || '0';
-    const desc  = row.querySelector('.descripcion').value;
-    const precio= row.querySelector('.precio').value   || '0';
-    const imp   = row.querySelector('.importe').innerText;
+    const cant   = row.querySelector('.cantidad').value || '0';
+    const desc   = row.querySelector('.descripcion').value;
+    const precio = row.querySelector('.precio').value   || '0';
+    const imp    = row.querySelector('.importe').innerText;
     if(desc || parseFloat(precio) > 0){
       filas += `  • ${cant}x ${desc} — $${precio} c/u = ${imp}\n`;
     }
@@ -544,14 +557,12 @@ function getDatosNota(){
 async function compartirWhatsApp(){
   const d = getDatosNota();
 
-  // 1. Primero descargar la imagen
   const canvas = await capturarCanvas();
   const link = document.createElement('a');
   link.download = 'nota-remision.png';
   link.href = canvas.toDataURL('image/png');
   link.click();
 
-  // 2. Construir mensaje con todos los datos
   const msg =
 `🔧 *TALLER AUTOMOTRÍZ GONZÁLEZ*
 _Transmisiones Automáticas y Mecánica en General_
@@ -576,7 +587,6 @@ Gracias por su preferencia 🙏
 📍 Col. El Progreso, Calle Santo Domingo
 📞 756 113 69 23`;
 
-  // 3. Abrir WhatsApp con el número del cliente si existe, si no abrir selector
   const numeroLimpio = d.telefono.replace(/\D/g,'');
   const url = numeroLimpio
     ? `https://wa.me/52${numeroLimpio}?text=${encodeURIComponent(msg)}`
@@ -588,14 +598,12 @@ Gracias por su preferencia 🙏
 async function compartirCorreo(){
   const d = getDatosNota();
 
-  // 1. Descargar la imagen
   const canvas = await capturarCanvas();
   const link = document.createElement('a');
   link.download = 'nota-remision.png';
   link.href = canvas.toDataURL('image/png');
   link.click();
 
-  // 2. Construir correo completo
   const asunto = encodeURIComponent(
     `Nota de Remisión No. ${d.orden} — Taller González`
   );
@@ -630,7 +638,6 @@ Transmisiones Automáticas y Mecánica en General
 📍 Colonia El Progreso, Calle Santo Domingo`
   );
 
-  // 3. Abrir app de correo — si tiene correo del cliente úsalo como destinatario
   setTimeout(()=>{
     window.location.href = `mailto:?subject=${asunto}&body=${cuerpo}`;
   }, 600);
