@@ -1,347 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Notas González</title>
-
-<!-- PWA -->
 <link rel="manifest" href="./manifest.json">
-
 <meta name="theme-color" content="#1e2d4a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-
 <link rel="apple-touch-icon" href="./Logo.jpeg">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial,sans-serif;
-}
-
-body{
-  background:#e8edf3;
-  padding:20px;
-}
-
-.container{
-  max-width:750px;
-  margin:auto;
-  background:white;
-  border-radius:12px;
-  box-shadow:0 4px 20px rgba(0,0,0,.18);
-  overflow:hidden;
-}
-
-/* ── ENCABEZADO AZUL ── */
-.header{
-  background:#1e2d4a;
-  display:flex;
-  align-items:center;
-  gap:16px;
-  padding:18px 22px;
-}
-
-.header img{
-  width:80px;
-  height:80px;
-  object-fit:cover;
-  border-radius:10px;
-  flex-shrink:0;
-}
-
-.header-text h1{
-  color:#ffffff;
-  font-size:22px;
-  font-weight:900;
-  letter-spacing:1px;
-  text-align:left;
-  margin:0;
-}
-
-.header-text p{
-  color:#c8d6e8;
-  font-size:12px;
-  margin:3px 0 0;
-  text-transform:uppercase;
-  letter-spacing:.5px;
-  line-height:1.4;
-}
-
-/* ── BANDA DORADA ── */
-.banda{
-  background:#b8922a;
-  text-align:center;
-  padding:8px;
-  color:white;
-  font-weight:bold;
-  font-size:14px;
-  letter-spacing:2px;
-}
-
-/* ── CUERPO ── */
-.body-content{
-  padding:20px;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:12px;
-  margin-bottom:16px;
-}
-
-.form-group{
-  display:flex;
-  flex-direction:column;
-}
-
-label{
-  margin-bottom:4px;
-  font-weight:bold;
-  font-size:13px;
-  color:#2c3a52;
-}
-
-input{
-  padding:10px;
-  border:1px solid #ccc;
-  border-radius:6px;
-  font-size:14px;
-}
-
-/* ── TABLA ── */
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-  font-size:13px;
-}
-
-table th{
-  background:#1e2d4a;
-  color:white;
-  padding:10px 8px;
-  text-align:left;
-  font-size:12px;
-  letter-spacing:.5px;
-}
-
-table td{
-  border:1px solid #ddd;
-  padding:6px 8px;
-}
-
-table input{
-  width:100%;
-  border:none;
-  outline:none;
-  font-size:13px;
-  padding:4px;
-}
-
-/* ── TOTALES ── */
-.totales{
-  margin-top:20px;
-  border:1px solid #ddd;
-  border-radius:8px;
-  overflow:hidden;
-}
-
-.totales-row{
-  display:flex;
-  justify-content:space-between;
-  padding:10px 16px;
-  border-bottom:1px solid #eee;
-  font-size:14px;
-}
-
-.totales-row:last-child{
-  border-bottom:none;
-  background:#1e2d4a;
-  color:white;
-  font-size:17px;
-  font-weight:bold;
-  padding:13px 16px;
-}
-
-.totales-label{
-  color:inherit;
-  font-weight:600;
-}
-
-/* ── CHECKBOXES IVA/ISR ── */
-.checks{
-  display:flex;
-  gap:24px;
-  margin-top:14px;
-  align-items:center;
-  font-size:14px;
-  font-weight:bold;
-  color:#2c3a52;
-}
-
-.checks label{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.checks input[type=checkbox]{
-  width:18px;
-  height:18px;
-  cursor:pointer;
-}
-
-/* ── BOTONES ── */
-.botones{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  margin-top:18px;
-}
-
-.btn{
-  padding:14px 18px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:15px;
-  font-weight:bold;
-  width:100%;
-}
-
-.add{
-  background:#28a745;
-  color:white;
-  width:auto;
-  padding:10px 16px;
-  font-size:14px;
-  border-radius:6px;
-  margin-top:12px;
-}
-
-.btn-download{
-  background:#28a745;
-  color:white;
-}
-
-.btn-clear{
-  background:#dc3545;
-  color:white;
-}
-
-.delete-btn{
-  background:#dc3545;
-  color:white;
-  border:none;
-  padding:6px 10px;
-  border-radius:5px;
-  cursor:pointer;
-  font-size:12px;
-}
-
-/* ── PIE AZUL ── */
-.footer{
-  background:#1e2d4a;
-  color:#c8d6e8;
-  text-align:center;
-  padding:14px 20px;
-  font-size:13px;
-  font-weight:bold;
-  letter-spacing:.5px;
-  margin-top:24px;
-}
-
-.footer span{
-  color:#f0c040;
-}
-
-/* ── MODO IMPRESIÓN (para captura limpia) ── */
-/* Cuando el body tiene esta clase, los datos del cliente se ven como
-   "Etiqueta: dato_subrayado" en línea, estilo nota de remisión clásica.
-   La tabla de servicios NO se toca. */
-
-/* El grid pasa de tarjetas a un bloque tipo formulario impreso */
-body.modo-captura .grid{
-  display:block;
-  border:1px solid #1e2d4a;
-  border-radius:6px;
-  padding:14px 18px;
-  background:#fafbfc;
-}
-
-body.modo-captura .form-group{
-  flex-direction:row;
-  align-items:baseline;
-  margin-bottom:10px;
-}
-
-body.modo-captura .form-group:last-child{
-  margin-bottom:0;
-}
-
-body.modo-captura label{
-  font-size:13px;
-  font-weight:bold;
-  color:#1e2d4a;
-  margin-bottom:0;
-  white-space:nowrap;
-  margin-right:8px;
-}
-
-body.modo-captura label::after{
-  content:":";
-}
-
-/* Inputs de los datos del cliente: línea subrayada en vez de caja */
-body.modo-captura .form-group input[type="text"],
-body.modo-captura .form-group input[type="date"]{
-  flex:1;
-  border:none;
-  border-bottom:1px solid #1e2d4a;
-  background:transparent;
-  border-radius:0;
-  padding:0 4px 2px;
-  font-size:14px;
-  font-weight:600;
-  color:#1a1a1a;
-  -webkit-appearance:none;
-  appearance:none;
-  min-width:60px;
-}
-
-/* La tabla de servicios/refacciones queda intacta */
-body.modo-captura table td input{
-  border:none;
-  background:transparent;
-  padding:4px;
-}
-
-/* Ocultar el ícono nativo del selector de fecha solo durante la captura */
-body.modo-captura input[type="date"]::-webkit-calendar-picker-indicator{
-  display:none;
-}
-
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+body{background:#e8edf3;padding:20px;}
+.container{max-width:750px;margin:auto;background:white;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.18);overflow:hidden;}
+.header{background:#1e2d4a;display:flex;align-items:center;gap:16px;padding:18px 22px;}
+.header img{width:80px;height:80px;object-fit:cover;border-radius:10px;flex-shrink:0;}
+.header-text h1{color:#fff;font-size:22px;font-weight:900;letter-spacing:1px;text-align:left;margin:0;}
+.header-text p{color:#c8d6e8;font-size:12px;margin:3px 0 0;text-transform:uppercase;letter-spacing:.5px;line-height:1.4;}
+.banda{background:#b8922a;text-align:center;padding:8px;color:white;font-weight:bold;font-size:14px;letter-spacing:2px;}
+.body-content{padding:20px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px;}
+.form-group{display:flex;flex-direction:column;}
+label{margin-bottom:4px;font-weight:bold;font-size:13px;color:#2c3a52;}
+input{padding:10px;border:1px solid #ccc;border-radius:6px;font-size:14px;}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px;}
+table th{background:#1e2d4a;color:white;padding:10px 8px;text-align:left;font-size:12px;letter-spacing:.5px;}
+table td{border:1px solid #ddd;padding:6px 8px;}
+table td input{width:100%;border:none;outline:none;font-size:13px;padding:4px;}
+.totales{margin-top:20px;border:1px solid #ddd;border-radius:8px;overflow:hidden;}
+.totales-row{display:flex;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #eee;font-size:14px;}
+.totales-row:last-child{border-bottom:none;background:#1e2d4a;color:white;font-size:17px;font-weight:bold;padding:13px 16px;}
+.totales-label{color:inherit;font-weight:600;}
+.checks{display:flex;gap:24px;margin-top:14px;align-items:center;font-size:14px;font-weight:bold;color:#2c3a52;}
+.checks label{display:flex;align-items:center;gap:6px;font-weight:bold;cursor:pointer;}
+.checks input[type=checkbox]{width:18px;height:18px;cursor:pointer;}
+.botones{display:flex;flex-direction:column;gap:10px;margin-top:18px;}
+.btn{padding:14px 18px;border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:bold;width:100%;}
+.add{background:#28a745;color:white;width:auto;padding:10px 16px;font-size:14px;border-radius:6px;margin-top:12px;}
+.btn-download{background:#28a745;color:white;}
+.btn-clear{background:#dc3545;color:white;}
+.footer{background:#1e2d4a;color:#c8d6e8;text-align:center;padding:14px 20px;font-size:13px;font-weight:bold;letter-spacing:.5px;margin-top:24px;}
+.footer span{color:#f0c040;}
 </style>
-
 </head>
 <body>
-
 <div class="container" id="nota">
-
-  <!-- ENCABEZADO AZUL -->
   <div class="header">
     <img src="./Logo.jpeg" alt="Logo González">
     <div class="header-text">
@@ -349,59 +53,44 @@ body.modo-captura input[type="date"]::-webkit-calendar-picker-indicator{
       <p>Transmisiones Automáticas<br>y Mecánica en General González</p>
     </div>
   </div>
-
-  <!-- BANDA DORADA -->
   <div class="banda">NOTA DE REMISIÓN</div>
-
-  <!-- CUERPO -->
   <div class="body-content">
-
     <div class="grid">
-
       <div class="form-group">
         <label>No. de Orden</label>
         <input type="text" id="fOrden" placeholder="Ej: 001">
       </div>
-
       <div class="form-group">
         <label>Fecha</label>
         <input type="date" id="fFecha">
       </div>
-
       <div class="form-group">
         <label>Unidad (Vehículo)</label>
         <input type="text" id="fUnidad" placeholder="Marca / Modelo / Año">
       </div>
-
       <div class="form-group">
         <label>Dirección</label>
         <input type="text" id="fDireccion" placeholder="Dirección del cliente">
       </div>
-
       <div class="form-group">
         <label>Cliente</label>
         <input type="text" id="fCliente" placeholder="Nombre completo">
       </div>
-
       <div class="form-group">
         <label>Teléfono</label>
         <input type="text" id="fTelefono" placeholder="Teléfono">
       </div>
-
       <div class="form-group">
         <label>R.F.C.</label>
         <input type="text" id="fRfc" placeholder="RFC (opcional)">
       </div>
-
     </div>
-
-    <!-- TABLA -->
     <table>
       <thead>
         <tr>
-          <th style="width:80px">CANTIDAD</th>
+          <th style="width:70px">CANT.</th>
           <th>DESCRIPCIÓN</th>
-          <th style="width:110px">PRECIO</th>
+          <th style="width:100px">PRECIO</th>
           <th style="width:120px">IMPORTE (MXN)</th>
         </tr>
       </thead>
@@ -414,22 +103,11 @@ body.modo-captura input[type="date"]::-webkit-calendar-picker-indicator{
         </tr>
       </tbody>
     </table>
-
     <button id="btnAgregarFila" class="btn add" onclick="agregarFila()">+ Agregar fila</button>
-
-    <!-- CHECKBOXES -->
     <div class="checks">
-      <label>
-        <input type="checkbox" id="chkIva" onchange="calcular()">
-        Aplicar IVA 16%
-      </label>
-      <label>
-        <input type="checkbox" id="chkIsr" onchange="calcular()">
-        Retener ISR 1.25%
-      </label>
+      <label><input type="checkbox" id="chkIva" onchange="calcular()"> Aplicar IVA 16%</label>
+      <label><input type="checkbox" id="chkIsr" onchange="calcular()"> Retener ISR 1.25%</label>
     </div>
-
-    <!-- TOTALES -->
     <div class="totales" style="margin-top:18px">
       <div class="totales-row">
         <span class="totales-label">Precio del Producto:</span>
@@ -452,30 +130,377 @@ body.modo-captura input[type="date"]::-webkit-calendar-picker-indicator{
         <span>$ <span id="total">0.00</span></span>
       </div>
     </div>
-
-    <!-- BOTONES -->
     <div class="botones" id="accionesBotones">
       <button class="btn btn-download" onclick="generarNota()">📄 Descargar PDF</button>
       <div style="display:flex;gap:10px">
-        <button class="btn btn-whatsapp" onclick="compartirWhatsApp()" style="flex:1;background:#25D366;color:white">
+        <button class="btn" onclick="compartirWhatsApp()" style="flex:1;background:#25D366;color:white">
           <span style="font-size:18px">💬</span><br>Enviar por<br>WhatsApp
         </button>
-        <button class="btn btn-email" onclick="compartirCorreo()" style="flex:1;background:#3b4d6b;color:white">
+        <button class="btn" onclick="compartirCorreo()" style="flex:1;background:#3b4d6b;color:white">
           <span style="font-size:18px">✉️</span><br>Enviar por<br>Correo
         </button>
       </div>
       <button class="btn btn-clear" onclick="limpiarTodo()">🗑 Limpiar</button>
     </div>
-
     <p id="hintSwipe" style="margin-top:10px;text-align:center;font-size:11px;color:#aaa">
       👈 Desliza una fila a la izquierda para eliminarla &nbsp;|&nbsp; 💬 WhatsApp abre con el número del cliente automáticamente
     </p>
-
-  </div><!-- /body-content -->
-
-  <!-- PIE AZUL -->
+  </div>
   <div class="footer">
     <span>CEL.: 756 113 69 23</span> &nbsp;·&nbsp; DIRECCIÓN: Colonia El Progreso, Calle Santo Domingo
+  </div>
+</div>
+
+<script>
+// ── Helpers de tabla ────────────────────────────────────
+function agregarFila(){
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td><input type="number" value="0" class="cantidad"></td>
+    <td><input type="text" placeholder="Servicio o refacción..." class="descripcion"></td>
+    <td><input type="number" value="0" class="precio"></td>
+    <td class="importe">$ 0.00</td>`;
+  document.getElementById('bodyTable').appendChild(tr);
+  agregarSwipe(tr); eventos();
+}
+function eliminarFila(row){
+  if(document.querySelectorAll('#bodyTable tr').length>1){ row.remove(); calcular(); }
+}
+function agregarSwipe(tr){
+  let sx=0;
+  tr.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;},{passive:true});
+  tr.addEventListener('touchend',e=>{ if(sx-e.changedTouches[0].clientX>80) eliminarFila(tr); });
+  let t;
+  tr.addEventListener('mousedown',()=>{t=setTimeout(()=>{if(confirm('¿Eliminar esta fila?'))eliminarFila(tr);},600);});
+  tr.addEventListener('mouseup',()=>clearTimeout(t));
+  tr.addEventListener('mouseleave',()=>clearTimeout(t));
+}
+function eventos(){
+  document.querySelectorAll('.cantidad,.precio').forEach(i=>{i.oninput=calcular;});
+}
+function calcular(){
+  let base=0;
+  document.querySelectorAll('#bodyTable tr').forEach(row=>{
+    const c=parseFloat(row.querySelector('.cantidad').value)||0;
+    const p=parseFloat(row.querySelector('.precio').value)||0;
+    const imp=c*p;
+    row.querySelector('.importe').innerText='$ '+imp.toFixed(2);
+    base+=imp;
+  });
+  const ai=document.getElementById('chkIva').checked;
+  const ar=document.getElementById('chkIsr').checked;
+  const iva=ai?base*0.16:0;
+  const isr=ar?base*0.0125:0;
+  document.getElementById('precioProducto').innerText=base.toFixed(2);
+  document.getElementById('subtotal').innerText=base.toFixed(2);
+  document.getElementById('iva').innerText=iva.toFixed(2);
+  document.getElementById('isr').innerText=isr.toFixed(2);
+  document.getElementById('total').innerText=(base+iva-isr).toFixed(2);
+  document.getElementById('rowIva').style.display=ai?'':'none';
+  document.getElementById('rowIsr').style.display=ar?'':'none';
+}
+function limpiarTodo(){ location.reload(); }
+function formatFecha(v){
+  if(!v) return '—';
+  const[a,m,d]=v.split('-'); return `${d}/${m}/${a}`;
+}
+
+// ── Cargar logo como base64 ─────────────────────────────
+function cargarLogo(src){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    img.onload=()=>{
+      const c=document.createElement('canvas');
+      c.width=img.width; c.height=img.height;
+      c.getContext('2d').drawImage(img,0,0);
+      resolve(c.toDataURL('image/jpeg'));
+    };
+    img.onerror=()=>resolve(null);
+    img.src=src+'?cb='+Date.now();
+  });
+}
+
+// ── Construir PDF con jsPDF directo ────────────────────
+async function buildPDF(){
+  const{jsPDF}=window.jspdf;
+
+  // Tamaño carta
+  const PW=215.9, PH=279.4;
+  const ML=14, MR=14, MT=12;
+  const CW=PW-ML-MR;
+
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
+
+  // Colores
+  const AZUL=[30,45,74];
+  const DORADO=[184,146,42];
+  const BLANCO=[255,255,255];
+  const GRIS_F=[248,249,251];
+  const GRIS_B=[210,215,222];
+  const NEGRO=[25,25,25];
+  const AZUL_L=[235,239,245];
+
+  let y=MT;
+
+  // ─── ENCABEZADO ──────────────────────────────────────
+  const HH=32;
+  doc.setFillColor(...AZUL);
+  doc.rect(ML,y,CW,HH,'F');
+
+  // Logo
+  const logo=await cargarLogo('./Logo.jpeg');
+  if(logo) doc.addImage(logo,'JPEG',ML+4,y+4,24,24);
+
+  // Nombre taller
+  const TLX=ML+33;
+  doc.setTextColor(...BLANCO);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(16);
+  doc.text('TALLER AUTOMOTRÍZ', TLX, y+11);
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica','normal');
+  doc.text('Transmisiones Automáticas y Mecánica en General González', TLX, y+18);
+  doc.setFontSize(7.5);
+  doc.text('CEL.: 756 113 69 23  ·  Col. El Progreso, Calle Santo Domingo, Chilapa, Gro.', TLX, y+24);
+
+  // Número de orden en esquina superior derecha del encabezado
+  const orden=document.getElementById('fOrden').value||'—';
+  doc.setFontSize(7);
+  doc.setTextColor(180,200,225);
+  doc.text('No. '+orden, ML+CW-3, y+8, {align:'right'});
+
+  y+=HH;
+
+  // ─── BANDA DORADA ────────────────────────────────────
+  doc.setFillColor(...DORADO);
+  doc.rect(ML,y,CW,8,'F');
+  doc.setTextColor(...BLANCO);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9.5);
+  doc.text('NOTA DE REMISIÓN', PW/2, y+5.5, {align:'center'});
+  y+=10;
+
+  // ─── DATOS CLIENTE (2 columnas, fondo azul muy claro) ─
+  const datos={
+    'No. de Orden': orden,
+    'Fecha':        formatFecha(document.getElementById('fFecha').value),
+    'Vehículo':     document.getElementById('fUnidad').value||'—',
+    'Dirección':    document.getElementById('fDireccion').value||'—',
+    'Cliente':      document.getElementById('fCliente').value||'—',
+    'Teléfono':     document.getElementById('fTelefono').value||'—',
+    'R.F.C.':       document.getElementById('fRfc').value||'—',
+  };
+  const claves=Object.keys(datos);
+  const COL_W=(CW-4)/2;
+  const FILA_H=7.5;
+  const FILAS=Math.ceil(claves.length/2);
+  const BLOQUE_H=FILAS*FILA_H+5;
+
+  doc.setFillColor(...AZUL_L);
+  doc.setDrawColor(...GRIS_B);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(ML,y,CW,BLOQUE_H,2,2,'FD');
+
+  claves.forEach((k,i)=>{
+    const col=i%2;
+    const fila=Math.floor(i/2);
+    const cx=ML+4+(col*(COL_W+4));
+    const cy=y+4+fila*FILA_H;
+    // label
+    doc.setFontSize(7);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(...AZUL);
+    doc.text(k+':', cx, cy+4);
+    // valor — con splitTextToSize por si es largo
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(...NEGRO);
+    doc.setFontSize(8);
+    const maxW=COL_W-30;
+    const lines=doc.splitTextToSize(String(datos[k]||'—'), maxW);
+    doc.text(lines[0], cx+27, cy+4); // solo primera línea en este bloque
+  });
+
+  y+=BLOQUE_H+4;
+
+  // ─── TABLA SERVICIOS ─────────────────────────────────
+  // Anchos de columna
+  const C_CANT=18, C_PRECIO=28, C_IMP=38;
+  const C_DESC=CW-C_CANT-C_PRECIO-C_IMP;
+  const CX={
+    cant:  ML,
+    desc:  ML+C_CANT,
+    precio:ML+C_CANT+C_DESC,
+    imp:   ML+C_CANT+C_DESC+C_PRECIO,
+  };
+
+  // Cabecera
+  const TH=8;
+  doc.setFillColor(...AZUL);
+  doc.rect(ML,y,CW,TH,'F');
+  doc.setTextColor(...BLANCO);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(8);
+  doc.text('CANT.',          CX.cant+C_CANT/2,   y+5.2, {align:'center'});
+  doc.text('DESCRIPCIÓN',    CX.desc+3,           y+5.2);
+  doc.text('PRECIO',         CX.precio+C_PRECIO/2,y+5.2, {align:'center'});
+  doc.text('IMPORTE (MXN)',  CX.imp+C_IMP/2,      y+5.2, {align:'center'});
+  y+=TH;
+
+  // Recolectar filas con datos
+  const filas=[];
+  let base=0;
+  document.querySelectorAll('#bodyTable tr').forEach(tr=>{
+    const cant=parseFloat(tr.querySelector('.cantidad').value)||0;
+    const desc=tr.querySelector('.descripcion').value.trim();
+    const precio=parseFloat(tr.querySelector('.precio').value)||0;
+    const imp=cant*precio;
+    if(desc||imp>0){ filas.push({cant,desc:desc||'—',precio,imp}); base+=imp; }
+  });
+  if(!filas.length) filas.push({cant:0,desc:'—',precio:0,imp:0});
+
+  // Dibujar filas
+  filas.forEach((f,idx)=>{
+    const lines=doc.splitTextToSize(f.desc, C_DESC-5);
+    const rowH=Math.max(7, lines.length*4.5+3);
+
+    // Fondo alternado
+    doc.setFillColor(idx%2===0?250:244, idx%2===0?251:246, idx%2===0?252:249);
+    doc.rect(ML,y,CW,rowH,'F');
+
+    // Bordes
+    doc.setDrawColor(...GRIS_B);
+    doc.setLineWidth(0.2);
+    doc.line(ML,      y+rowH, ML+CW,   y+rowH); // línea inferior
+    doc.line(CX.desc, y,      CX.desc,  y+rowH);
+    doc.line(CX.precio,y,     CX.precio,y+rowH);
+    doc.line(CX.imp,  y,      CX.imp,   y+rowH);
+
+    // Textos
+    doc.setTextColor(...NEGRO);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8.5);
+    const cy=y+rowH/2+1.5;
+    doc.text(String(f.cant),         CX.cant+C_CANT/2,       cy, {align:'center'});
+    doc.text(lines,                  CX.desc+3,               y+4.5);
+    doc.text('$'+f.precio.toFixed(2),CX.precio+C_PRECIO-2,   cy, {align:'right'});
+    doc.text('$'+f.imp.toFixed(2),   CX.imp+C_IMP-2,         cy, {align:'right'});
+
+    y+=rowH;
+  });
+
+  // Borde exterior de la tabla
+  doc.setDrawColor(...GRIS_B);
+  doc.setLineWidth(0.3);
+  const tablaY=y-filas.reduce((acc,f)=>{
+    const lines=doc.splitTextToSize(f.desc,C_DESC-5);
+    return acc+Math.max(7,lines.length*4.5+3);
+  },0)-TH;
+  doc.rect(ML, tablaY, CW, y-tablaY, 'S');
+
+  y+=5;
+
+  // ─── TOTALES ─────────────────────────────────────────
+  const ai=document.getElementById('chkIva').checked;
+  const ar=document.getElementById('chkIsr').checked;
+  const iva=ai?base*0.16:0;
+  const isr=ar?base*0.0125:0;
+  const total=base+iva-isr;
+
+  const TW=88, TX=ML+CW-TW;
+
+  function filaT(lbl,val,bold,bg){
+    const fh=bold?9:7.5;
+    if(bg){
+      doc.setFillColor(...bg);
+    } else {
+      doc.setFillColor(...GRIS_F);
+    }
+    doc.setDrawColor(...GRIS_B);
+    doc.setLineWidth(0.2);
+    doc.rect(TX,y,TW,fh,'FD');
+    doc.setTextColor(bg?255:60, bg?255:60, bg?255:60);
+    doc.setFont('helvetica',bold?'bold':'normal');
+    doc.setFontSize(bold?9.5:8);
+    doc.text(lbl, TX+3, y+fh/2+1.5);
+    doc.text(val, TX+TW-2, y+fh/2+1.5, {align:'right'});
+    y+=fh;
+  }
+
+  filaT('Subtotal:',              '$ '+base.toFixed(2));
+  if(ai) filaT('IVA (16%):',     '$ '+iva.toFixed(2));
+  if(ar) filaT('Ret. ISR (1.25%):','$ '+isr.toFixed(2));
+  filaT('TOTAL A PAGAR:', '$ '+total.toFixed(2), true, AZUL);
+
+  y+=10;
+
+  // ─── PIE ─────────────────────────────────────────────
+  // Línea dorada
+  doc.setDrawColor(...DORADO);
+  doc.setLineWidth(0.8);
+  doc.line(ML,y,ML+CW,y);
+  y+=5;
+
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica','italic');
+  doc.setTextColor(110,110,110);
+  doc.text('Gracias por su preferencia. Este documento no es un comprobante fiscal.',PW/2,y,{align:'center'});
+  y+=4.5;
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(...AZUL);
+  doc.text('TALLER AUTOMOTRÍZ GONZÁLEZ',PW/2,y,{align:'center'});
+  y+=4.5;
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(110,110,110);
+  doc.text('CEL.: 756 113 69 23  ·  Colonia El Progreso, Calle Santo Domingo, Chilapa, Gro.',PW/2,y,{align:'center'});
+  y+=5;
+
+  doc.setDrawColor(...DORADO);
+  doc.setLineWidth(0.4);
+  doc.line(ML,y,ML+CW,y);
+
+  // Fecha de generación en pie de página
+  const hoy=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
+  doc.setFontSize(6.5);
+  doc.setTextColor(180,180,180);
+  doc.text(`Generado el ${hoy} · Sistema Notas González`, PW/2, PH-5, {align:'center'});
+
+  return doc;
+}
+
+// ── Acciones principales ────────────────────────────────
+async function generarNota(){
+  const doc=await buildPDF();
+  const ord=document.getElementById('fOrden').value||'sn';
+  doc.save(`nota-remision-${ord}.pdf`);
+}
+
+function getDatosNota(){
+  const o=document.getElementById('fOrden')?.value||'';
+  const f=document.getElementById('fFecha')?.value||'';
+  const u=document.getElementById('fUnidad')?.value||'';
+  const cl=document.getElementById('fCliente')?.value||'';
+  const t=document.getElementById('fTelefono')?.value||'';
+  const tot=document.getElementById('total').innerText||'0.00';
+  const sub=document.getElementById('subtotal').innerText||'0.00';
+  const iv=document.getElementById('chkIva').checked?'  IVA (16%): $'+document.getElementById('iva').innerText:'';
+  const is=document.getElementById('chkIsr').checked?'  Retención ISR (1.25%): $'+document.getElementById('isr').innerText:'';
+  let filas='';
+  document.querySelectorAll('#bodyTable tr').forEach(row=>{
+    const cant=row.querySelector('.cantidad').value||'0';
+    const desc=row.querySelector('.descripcion').value;
+    const precio=row.querySelector('.precio').value||'0';
+    const imp=row.querySelector('.importe').innerText;
+    if(desc||parseFloat(precio)>0) filas+=`  • ${cant}x ${desc} — $${precio} c/u = ${imp}\n`;
+  });
+  return{orden:o,fecha:f,unidad:u,cliente:cl,telefono:t,total:tot,subtotal:sub,iva:iv,isr:is,filas};
+}
+
+async function compartirWhatsApp(){
+  const d=getDatosNota();
+  const doc=await buildPDF();
+  doc.save(`nota-remision-${d.orden||'sn'}.pdf`);
+  const msg=`🔧 *TALLER AUTOMOTRÍZ GONZÁLEZ*\n_Transmisiones Automáticas y Mecánica en General_\n\n📋 *NOTA DE REMISIÓN*\n━━━━━━━━━━━━━━━\n📌 No. Orden: ${d.orden}\n📅 Fecha: ${d.fecha}\n👤 Cliente: ${d.cliente}\n🚗 Vehículo: ${d.unidad}\n📞 Tel: ${d.telefono}\n━━━━━━━━━━━━━━━\n🛠️ *Servicios / Refacciones:*\n${d.filas}━━━━━━━━━━━━━━━\n💰 Subtotal: $${d.subtotal}\n${d.iva}${d.isr?'\n'+d.isr:''}\n✅ *TOTAL: $${d.total} MXN*\n━━━━━━━━━━━━━━━\n📎 _PD>CEL.: 756 113 69 23</span> &nbsp;·&nbsp; DIRECCIÓN: Colonia El Progreso, Calle Santo Domingo
   </div>
 
 </div><!-- /container -->
