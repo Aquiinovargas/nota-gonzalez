@@ -225,245 +225,304 @@ function cargarLogo(src){
 async function buildPDF(){
   const{jsPDF}=window.jspdf;
 
-  // Tamaño carta
+  // Hoja carta en mm
   const PW=215.9, PH=279.4;
-  const ML=14, MR=14, MT=12;
-  const CW=PW-ML-MR;
+  const ML=10, MR=10, MT=10, MB=10;
+  const CW=PW-ML-MR;   // 195.9 mm ancho útil
 
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
 
-  // Colores
-  const AZUL=[30,45,74];
-  const DORADO=[184,146,42];
-  const BLANCO=[255,255,255];
-  const GRIS_F=[248,249,251];
-  const GRIS_B=[210,215,222];
-  const NEGRO=[25,25,25];
-  const AZUL_L=[235,239,245];
+  // ── Paleta ─────────────────────────────────────────
+  const AZUL   =[30,45,74];
+  const DORADO  =[184,146,42];
+  const BLANCO  =[255,255,255];
+  const GRIS_F  =[248,249,251];
+  const GRIS_B  =[200,208,218];
+  const NEGRO   =[20,20,20];
+  const AZUL_CL =[232,238,248];
+
+  // ── Helper: línea horizontal de separación ─────────
+  function hLine(yy,color=GRIS_B,lw=0.2){
+    doc.setDrawColor(...color);
+    doc.setLineWidth(lw);
+    doc.line(ML,yy,ML+CW,yy);
+  }
+
+  // ── Cargar logo ─────────────────────────────────────
+  const logo=await cargarLogo('./Logo.jpeg');
 
   let y=MT;
 
-  // ─── ENCABEZADO ──────────────────────────────────────
-  const HH=32;
+  // ════════════════════════════════════════════════════
+  // 1. ENCABEZADO AZUL — ocupa todo el ancho
+  // ════════════════════════════════════════════════════
+  const HH=30;
   doc.setFillColor(...AZUL);
   doc.rect(ML,y,CW,HH,'F');
 
-  // Logo
-  const logo=await cargarLogo('./Logo.jpeg');
-  if(logo) doc.addImage(logo,'JPEG',ML+4,y+4,24,24);
+  // Logo a la izquierda
+  if(logo) doc.addImage(logo,'JPEG',ML+3,y+3,24,24);
 
-  // Nombre taller
-  const TLX=ML+33;
+  // Textos centrados en el espacio restante
+  const hTX=ML+32;
+  const hTW=CW-32-30; // dejar espacio a la derecha para No. orden
   doc.setTextColor(...BLANCO);
   doc.setFont('helvetica','bold');
-  doc.setFontSize(16);
-  doc.text('TALLER AUTOMOTRÍZ', TLX, y+11);
-  doc.setFontSize(8.5);
+  doc.setFontSize(15);
+  doc.text('TALLER AUTOMOTRÍZ GONZÁLEZ', hTX+hTW/2, y+9, {align:'center'});
+  doc.setFontSize(8);
   doc.setFont('helvetica','normal');
-  doc.text('Transmisiones Automáticas y Mecánica en General González', TLX, y+18);
-  doc.setFontSize(7.5);
-  doc.text('CEL.: 756 113 69 23  ·  Col. El Progreso, Calle Santo Domingo, Chilapa, Gro.', TLX, y+24);
+  doc.text('Transmisiones Automáticas y Mecánica en General', hTX+hTW/2, y+15, {align:'center'});
+  doc.setFontSize(7);
+  doc.text('CEL.: 756 113 69 23  ·  Col. El Progreso, Calle Santo Domingo, Chilapa, Gro.', hTX+hTW/2, y+21, {align:'center'});
 
-  // Número de orden en esquina superior derecha del encabezado
+  // No. de Orden — esquina derecha del encabezado
   const orden=document.getElementById('fOrden').value||'—';
   doc.setFontSize(7);
-  doc.setTextColor(180,200,225);
-  doc.text('No. '+orden, ML+CW-3, y+8, {align:'right'});
+  doc.setTextColor(180,200,230);
+  doc.text('No. Orden:', ML+CW-28, y+10);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10);
+  doc.setTextColor(...BLANCO);
+  doc.text(orden, ML+CW-28, y+18);
 
   y+=HH;
 
-  // ─── BANDA DORADA ────────────────────────────────────
+  // Banda dorada
   doc.setFillColor(...DORADO);
-  doc.rect(ML,y,CW,8,'F');
+  doc.rect(ML,y,CW,7,'F');
   doc.setTextColor(...BLANCO);
   doc.setFont('helvetica','bold');
-  doc.setFontSize(9.5);
-  doc.text('NOTA DE REMISIÓN', PW/2, y+5.5, {align:'center'});
-  y+=10;
+  doc.setFontSize(9);
+  doc.text('NOTA DE REMISIÓN', PW/2, y+4.8, {align:'center'});
+  y+=9;
 
-  // ─── DATOS CLIENTE (2 columnas, fondo azul muy claro) ─
-  const datos={
-    'No. de Orden': orden,
-    'Fecha':        formatFecha(document.getElementById('fFecha').value),
-    'Vehículo':     document.getElementById('fUnidad').value||'—',
-    'Dirección':    document.getElementById('fDireccion').value||'—',
-    'Cliente':      document.getElementById('fCliente').value||'—',
-    'Teléfono':     document.getElementById('fTelefono').value||'—',
-    'R.F.C.':       document.getElementById('fRfc').value||'—',
-  };
-  const claves=Object.keys(datos);
-  const COL_W=(CW-4)/2;
-  const FILA_H=7.5;
-  const FILAS=Math.ceil(claves.length/2);
-  const BLOQUE_H=FILAS*FILA_H+5;
+  // ════════════════════════════════════════════════════
+  // 2. DATOS DEL CLIENTE — 2 columnas × 4 filas
+  // ════════════════════════════════════════════════════
+  const datos=[
+    ['No. de Orden', orden],
+    ['Fecha',        formatFecha(document.getElementById('fFecha').value)],
+    ['Cliente',      document.getElementById('fCliente').value||'—'],
+    ['Vehículo',     document.getElementById('fUnidad').value||'—'],
+    ['Dirección',    document.getElementById('fDireccion').value||'—'],
+    ['Teléfono',     document.getElementById('fTelefono').value||'—'],
+    ['R.F.C.',       document.getElementById('fRfc').value||'—'],
+    ['',''],  // celda vacía para que quede par
+  ];
 
-  doc.setFillColor(...AZUL_L);
+  const DCols=2;
+  const DFilas=Math.ceil(datos.length/DCols);
+  const DFH=8; // alto de cada fila de datos
+  const DH=DFilas*DFH+4;
+  const DColW=CW/DCols;
+
+  // Fondo azul claro
+  doc.setFillColor(...AZUL_CL);
   doc.setDrawColor(...GRIS_B);
-  doc.setLineWidth(0.3);
-  doc.roundedRect(ML,y,CW,BLOQUE_H,2,2,'FD');
+  doc.setLineWidth(0.25);
+  doc.rect(ML,y,CW,DH,'FD');
 
-  claves.forEach((k,i)=>{
-    const col=i%2;
-    const fila=Math.floor(i/2);
-    const cx=ML+4+(col*(COL_W+4));
-    const cy=y+4+fila*FILA_H;
-    // label
-    doc.setFontSize(7);
+  // Línea divisoria central vertical
+  doc.line(ML+DColW, y, ML+DColW, y+DH);
+
+  datos.forEach(([lbl,val],i)=>{
+    if(!lbl) return;
+    const col=i%DCols;
+    const fila=Math.floor(i/DCols);
+    const cx=ML+col*DColW+3;
+    const cy=y+3+fila*DFH;
+
+    // Label
     doc.setFont('helvetica','bold');
+    doc.setFontSize(7);
     doc.setTextColor(...AZUL);
-    doc.text(k+':', cx, cy+4);
-    // valor — con splitTextToSize por si es largo
+    doc.text(lbl+':', cx, cy+4.5);
+
+    // Valor — cabe en el ancho de la columna
     doc.setFont('helvetica','normal');
+    doc.setFontSize(8.5);
     doc.setTextColor(...NEGRO);
-    doc.setFontSize(8);
-    const maxW=COL_W-30;
-    const lines=doc.splitTextToSize(String(datos[k]||'—'), maxW);
-    doc.text(lines[0], cx+27, cy+4); // solo primera línea en este bloque
+    const maxW=DColW-32;
+    const lines=doc.splitTextToSize(String(val), maxW);
+    doc.text(lines[0], cx+26, cy+4.5); // solo 1 línea (son datos cortos)
+
+    // Línea horizontal entre filas
+    if(fila<DFilas-1){
+      doc.setDrawColor(...GRIS_B);
+      doc.setLineWidth(0.15);
+      doc.line(ML, cy+DFH, ML+CW, cy+DFH);
+    }
   });
 
-  y+=BLOQUE_H+4;
+  y+=DH+4;
 
-  // ─── TABLA SERVICIOS ─────────────────────────────────
-  // Anchos de columna
-  const C_CANT=18, C_PRECIO=28, C_IMP=38;
-  const C_DESC=CW-C_CANT-C_PRECIO-C_IMP;
-  const CX={
-    cant:  ML,
-    desc:  ML+C_CANT,
-    precio:ML+C_CANT+C_DESC,
-    imp:   ML+C_CANT+C_DESC+C_PRECIO,
-  };
+  // ════════════════════════════════════════════════════
+  // 3. TABLA DE SERVICIOS
+  // ════════════════════════════════════════════════════
 
-  // Cabecera
+  // Anchos de columna — la descripción se lleva el espacio restante
+  const C_CANT  =16;
+  const C_PRECIO=32;
+  const C_IMP   =40;
+  const C_DESC  =CW-C_CANT-C_PRECIO-C_IMP;  // ~107 mm → mucho espacio
+
+  const X_CANT  =ML;
+  const X_DESC  =ML+C_CANT;
+  const X_PRECIO=ML+C_CANT+C_DESC;
+  const X_IMP   =ML+C_CANT+C_DESC+C_PRECIO;
+
+  // — Cabecera tabla —
   const TH=8;
   doc.setFillColor(...AZUL);
   doc.rect(ML,y,CW,TH,'F');
   doc.setTextColor(...BLANCO);
   doc.setFont('helvetica','bold');
   doc.setFontSize(8);
-  doc.text('CANT.',          CX.cant+C_CANT/2,   y+5.2, {align:'center'});
-  doc.text('DESCRIPCIÓN',    CX.desc+3,           y+5.2);
-  doc.text('PRECIO',         CX.precio+C_PRECIO/2,y+5.2, {align:'center'});
-  doc.text('IMPORTE (MXN)',  CX.imp+C_IMP/2,      y+5.2, {align:'center'});
+  doc.text('CANT.',        X_CANT+C_CANT/2,     y+5.3, {align:'center'});
+  doc.text('DESCRIPCIÓN',  X_DESC+3,             y+5.3);
+  doc.text('PRECIO',       X_PRECIO+C_PRECIO/2,  y+5.3, {align:'center'});
+  doc.text('IMPORTE (MXN)',X_IMP+C_IMP/2,        y+5.3, {align:'center'});
   y+=TH;
 
-  // Recolectar filas con datos
+  // — Recolectar filas —
   const filas=[];
   let base=0;
   document.querySelectorAll('#bodyTable tr').forEach(tr=>{
-    const cant=parseFloat(tr.querySelector('.cantidad').value)||0;
-    const desc=tr.querySelector('.descripcion').value.trim();
+    const cant =parseFloat(tr.querySelector('.cantidad').value)||0;
+    const desc =tr.querySelector('.descripcion').value.trim();
     const precio=parseFloat(tr.querySelector('.precio').value)||0;
-    const imp=cant*precio;
+    const imp  =cant*precio;
     if(desc||imp>0){ filas.push({cant,desc:desc||'—',precio,imp}); base+=imp; }
   });
-  if(!filas.length) filas.push({cant:0,desc:'—',precio:0,imp:0});
+  if(!filas.length) filas.push({cant:0,desc:'Sin datos',precio:0,imp:0});
 
-  // Dibujar filas
+  // — Calcular altura necesaria para la tabla —
+  // (para saber si hay que escalar, aunque en carta normal cabe bien)
+  const LINE_H=4.2; // altura por línea de texto
+  const ROW_PAD=3;  // padding vertical total de la fila
+
+  // — Dibujar filas —
+  const tablaStartY=y;
   filas.forEach((f,idx)=>{
-    const lines=doc.splitTextToSize(f.desc, C_DESC-5);
-    const rowH=Math.max(7, lines.length*4.5+3);
+    // Wrap de descripción con el ancho real de la columna
+    const descLines=doc.splitTextToSize(f.desc, C_DESC-5);
+    const rowH=Math.max(8, descLines.length*LINE_H+ROW_PAD);
 
-    // Fondo alternado
-    doc.setFillColor(idx%2===0?250:244, idx%2===0?251:246, idx%2===0?252:249);
+    // Fondo alternado suave
+    if(idx%2===0){
+      doc.setFillColor(250,251,253);
+    } else {
+      doc.setFillColor(242,245,250);
+    }
     doc.rect(ML,y,CW,rowH,'F');
 
-    // Bordes
+    // Bordes internos verticales
     doc.setDrawColor(...GRIS_B);
     doc.setLineWidth(0.2);
-    doc.line(ML,      y+rowH, ML+CW,   y+rowH); // línea inferior
-    doc.line(CX.desc, y,      CX.desc,  y+rowH);
-    doc.line(CX.precio,y,     CX.precio,y+rowH);
-    doc.line(CX.imp,  y,      CX.imp,   y+rowH);
+    doc.line(X_DESC,  y, X_DESC,  y+rowH);
+    doc.line(X_PRECIO,y, X_PRECIO,y+rowH);
+    doc.line(X_IMP,   y, X_IMP,   y+rowH);
+    // Línea inferior
+    doc.line(ML,y+rowH,ML+CW,y+rowH);
 
     // Textos
     doc.setTextColor(...NEGRO);
     doc.setFont('helvetica','normal');
+
+    // Cantidad — centrada verticalmente
     doc.setFontSize(8.5);
-    const cy=y+rowH/2+1.5;
-    doc.text(String(f.cant),         CX.cant+C_CANT/2,       cy, {align:'center'});
-    doc.text(lines,                  CX.desc+3,               y+4.5);
-    doc.text('$'+f.precio.toFixed(2),CX.precio+C_PRECIO-2,   cy, {align:'right'});
-    doc.text('$'+f.imp.toFixed(2),   CX.imp+C_IMP-2,         cy, {align:'right'});
+    doc.text(String(f.cant), X_CANT+C_CANT/2, y+rowH/2+1.5, {align:'center'});
+
+    // Descripción — alineada arriba con padding
+    doc.setFontSize(8.5);
+    doc.text(descLines, X_DESC+3, y+4.5);
+
+    // Precio e Importe — centrados verticalmente, alineados a la derecha
+    doc.text('$'+f.precio.toFixed(2), X_PRECIO+C_PRECIO-2, y+rowH/2+1.5, {align:'right'});
+    doc.setFont('helvetica','bold');
+    doc.text('$'+f.imp.toFixed(2),   X_IMP+C_IMP-2,       y+rowH/2+1.5, {align:'right'});
 
     y+=rowH;
   });
 
-  // Borde exterior de la tabla
-  doc.setDrawColor(...GRIS_B);
-  doc.setLineWidth(0.3);
-  const tablaY=y-filas.reduce((acc,f)=>{
-    const lines=doc.splitTextToSize(f.desc,C_DESC-5);
-    return acc+Math.max(7,lines.length*4.5+3);
-  },0)-TH;
-  doc.rect(ML, tablaY, CW, y-tablaY, 'S');
+  // Borde exterior de toda la tabla
+  doc.setDrawColor(...AZUL);
+  doc.setLineWidth(0.4);
+  doc.rect(ML,tablaStartY-TH,CW,y-(tablaStartY-TH),'S');
 
-  y+=5;
+  y+=4;
 
-  // ─── TOTALES ─────────────────────────────────────────
+  // ════════════════════════════════════════════════════
+  // 4. TOTALES — bloque a la derecha
+  // ════════════════════════════════════════════════════
   const ai=document.getElementById('chkIva').checked;
   const ar=document.getElementById('chkIsr').checked;
   const iva=ai?base*0.16:0;
   const isr=ar?base*0.0125:0;
   const total=base+iva-isr;
 
-  const TW=88, TX=ML+CW-TW;
+  const TW=90;
+  const TX=ML+CW-TW;
 
   function filaT(lbl,val,bold,bg){
-    const fh=bold?9:7.5;
-    if(bg){
-      doc.setFillColor(...bg);
-    } else {
-      doc.setFillColor(...GRIS_F);
-    }
+    const fh=bold?10:8;
+    doc.setFillColor(...(bg||GRIS_F));
     doc.setDrawColor(...GRIS_B);
     doc.setLineWidth(0.2);
     doc.rect(TX,y,TW,fh,'FD');
-    doc.setTextColor(bg?255:60, bg?255:60, bg?255:60);
     doc.setFont('helvetica',bold?'bold':'normal');
     doc.setFontSize(bold?9.5:8);
+    doc.setTextColor(...(bg?BLANCO:NEGRO));
     doc.text(lbl, TX+3, y+fh/2+1.5);
     doc.text(val, TX+TW-2, y+fh/2+1.5, {align:'right'});
     y+=fh;
   }
 
-  filaT('Subtotal:',              '$ '+base.toFixed(2));
-  if(ai) filaT('IVA (16%):',     '$ '+iva.toFixed(2));
-  if(ar) filaT('Ret. ISR (1.25%):','$ '+isr.toFixed(2));
-  filaT('TOTAL A PAGAR:', '$ '+total.toFixed(2), true, AZUL);
+  filaT('Subtotal:',                  '$ '+base.toFixed(2));
+  if(ai) filaT('IVA (16%):',         '$ '+iva.toFixed(2));
+  if(ar) filaT('Ret. ISR (1.25%):',  '$ '+isr.toFixed(2));
+  filaT('TOTAL A PAGAR:',             '$ '+total.toFixed(2), true, AZUL);
 
-  y+=10;
+  y+=8;
 
-  // ─── PIE ─────────────────────────────────────────────
-  // Línea dorada
+  // ════════════════════════════════════════════════════
+  // 5. PIE — pegado al fondo de la hoja
+  // ════════════════════════════════════════════════════
+  const pieY=PH-MB-22;
+  // Si el contenido ya llegó cerca del pie, usar y actual
+  const pieStart=Math.max(y, pieY);
+
   doc.setDrawColor(...DORADO);
   doc.setLineWidth(0.8);
-  doc.line(ML,y,ML+CW,y);
-  y+=5;
+  doc.line(ML,pieStart,ML+CW,pieStart);
 
   doc.setFontSize(7.5);
   doc.setFont('helvetica','italic');
   doc.setTextColor(110,110,110);
-  doc.text('Gracias por su preferencia. Este documento no es un comprobante fiscal.',PW/2,y,{align:'center'});
-  y+=4.5;
+  doc.text('Gracias por su preferencia. Este documento no es un comprobante fiscal.',
+           PW/2, pieStart+5, {align:'center'});
+
   doc.setFont('helvetica','bold');
+  doc.setFontSize(8.5);
   doc.setTextColor(...AZUL);
-  doc.text('TALLER AUTOMOTRÍZ GONZÁLEZ',PW/2,y,{align:'center'});
-  y+=4.5;
+  doc.text('TALLER AUTOMOTRÍZ GONZÁLEZ', PW/2, pieStart+11, {align:'center'});
+
   doc.setFont('helvetica','normal');
+  doc.setFontSize(7.5);
   doc.setTextColor(110,110,110);
-  doc.text('CEL.: 756 113 69 23  ·  Colonia El Progreso, Calle Santo Domingo, Chilapa, Gro.',PW/2,y,{align:'center'});
-  y+=5;
+  doc.text('CEL.: 756 113 69 23  ·  Colonia El Progreso, Calle Santo Domingo, Chilapa, Gro.',
+           PW/2, pieStart+16, {align:'center'});
 
   doc.setDrawColor(...DORADO);
   doc.setLineWidth(0.4);
-  doc.line(ML,y,ML+CW,y);
+  doc.line(ML,pieStart+19,ML+CW,pieStart+19);
 
-  // Fecha de generación en pie de página
+  // Fecha de generación
   const hoy=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
-  doc.setFontSize(6.5);
-  doc.setTextColor(180,180,180);
-  doc.text(`Generado el ${hoy} · Sistema Notas González`, PW/2, PH-5, {align:'center'});
+  doc.setFontSize(6);
+  doc.setTextColor(190,190,190);
+  doc.text(`Generado el ${hoy} · Sistema Notas González`, PW/2, PH-MB-1, {align:'center'});
 
   return doc;
 }
